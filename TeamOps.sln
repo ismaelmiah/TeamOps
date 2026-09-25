@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{212F800C-D6D9-4E82-811C-841E6E396F7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamOps.Domain", "src\TeamOps.Domain\TeamOps.Domain.csproj", "{E7E56043-23D3-400C-8346-8D937CD65D1A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{1ADC5F91-3D76-4949-9586-64DF4F903923}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamOps.Domain.Tests", "tests\TeamOps.Domain.Tests\TeamOps.Domain.Tests.csproj", "{442559BC-2C00-4755-AF5D-43B876F79E29}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E7E56043-23D3-400C-8346-8D937CD65D1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7E56043-23D3-400C-8346-8D937CD65D1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7E56043-23D3-400C-8346-8D937CD65D1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7E56043-23D3-400C-8346-8D937CD65D1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{442559BC-2C00-4755-AF5D-43B876F79E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{442559BC-2C00-4755-AF5D-43B876F79E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{442559BC-2C00-4755-AF5D-43B876F79E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{442559BC-2C00-4755-AF5D-43B876F79E29}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E7E56043-23D3-400C-8346-8D937CD65D1A} = {212F800C-D6D9-4E82-811C-841E6E396F7D}
+		{442559BC-2C00-4755-AF5D-43B876F79E29} = {1ADC5F91-3D76-4949-9586-64DF4F903923}
+	EndGlobalSection
+EndGlobal
