@@ -1,3 +1,4 @@
+using TeamOps.Domain.Tasks;
 using TeamOps.Domain.Users;
 
 namespace TeamOps.Domain.Projects;
@@ -5,6 +6,7 @@ namespace TeamOps.Domain.Projects;
 public sealed class Project
 {
     private readonly HashSet<Guid> _memberIds = [];
+    private readonly HashSet<Guid> _taskIds = [];
 
     private Project(Guid id, Guid tenantId, string name, ProjectStatus status)
     {
@@ -21,6 +23,7 @@ public sealed class Project
     public string Name { get; }
     public ProjectStatus Status { get; private set; }
     public IReadOnlyCollection<Guid> MemberIds => _memberIds;
+    public IReadOnlyCollection<Guid> TaskIds => _taskIds;
 
     public static Project Create(Guid id, Guid tenantId, string name)
     {
@@ -65,5 +68,25 @@ public sealed class Project
 
         if (!_memberIds.Remove(userId))
             throw new InvalidOperationException("User is not a project member.");
+    }
+
+    public void AddTask(TaskItem task)
+    {
+        ArgumentNullException.ThrowIfNull(task);
+
+        if (task.ProjectId != Id)
+            throw new InvalidOperationException("Task does not belong to this project.");
+
+        if (!_taskIds.Add(task.Id))
+            throw new InvalidOperationException("Task is already part of this project.");
+    }
+
+    public void RemoveTask(Guid taskId)
+    {
+        if (taskId == Guid.Empty)
+            throw new ArgumentException("Task ID is required.", nameof(taskId));
+
+        if (!_taskIds.Remove(taskId))
+            throw new InvalidOperationException("Task is not part of this project.");
     }
 }
