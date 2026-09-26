@@ -18,7 +18,9 @@ public sealed class User
 
     public string Name { get; }
 
-    public static User Create(Guid id, Guid tenantId, string email, string name)
+    public UserRole Role { get; private set; }
+
+    public static User Create(Guid id, Guid tenantId, string email, string name, UserRole role = UserRole.Member)
     {
         if (id == Guid.Empty)
             throw new ArgumentException("User ID is required.", nameof(id));
@@ -38,6 +40,9 @@ public sealed class User
         if (email.Length > 100)
             throw new ArgumentException("Email is too long.", nameof(email));
 
-        return new User(id, tenantId, email.Trim(), name.Trim());
+        var user = new User(id, tenantId, email.Trim(), name.Trim());
+        user.Role = role;
+
+        return user;
     }
 }
