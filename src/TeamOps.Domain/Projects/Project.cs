@@ -2,6 +2,8 @@ namespace TeamOps.Domain.Projects;
 
 public sealed class Project
 {
+    private readonly HashSet<Guid> _memberIds = [];
+
     private Project(Guid id, Guid tenantId, string name, ProjectStatus status)
     {
         Id = id;
@@ -16,6 +18,7 @@ public sealed class Project
 
     public string Name { get; }
     public ProjectStatus Status { get; private set; }
+    public IReadOnlyCollection<Guid> MemberIds => _memberIds;
 
     public static Project Create(Guid id, Guid tenantId, string name)
     {
@@ -37,5 +40,19 @@ public sealed class Project
             throw new InvalidOperationException("Project is already completed.");
 
         Status = ProjectStatus.Completed;
+    }
+
+    public void AddMember(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("User ID is required.", nameof(userId));
+
+        if (!_memberIds.Add(userId))
+            throw new InvalidOperationException("User is already a project member.");
+    }
+
+    public void RemoveMember(Guid userId)
+    {
+        _memberIds.Remove(userId);
     }
 }

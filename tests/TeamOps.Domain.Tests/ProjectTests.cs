@@ -144,4 +144,65 @@ public class ProjectTests
         // Assert
         Assert.Throws<InvalidOperationException>(act);
     }
+
+    [Fact]
+    public void AddMember_ShouldAddMemberToProject()
+    {
+        var project = Project.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Website");
+
+        var userId = Guid.NewGuid();
+
+        project.AddMember(userId);
+
+        Assert.Contains(userId, project.MemberIds);
+    }
+
+    [Fact]
+    public void AddMember_ShouldNotAllowDuplicateMember()
+    {
+        var project = Project.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Website");
+
+        var userId = Guid.NewGuid();
+
+        project.AddMember(userId);
+
+        var act = () => project.AddMember(userId);
+
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void AddMember_WithEmptyUserId_ShouldThrow()
+    {
+        var project = Project.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Website");
+
+        var act = () => project.AddMember(Guid.Empty);
+
+        Assert.Throws<ArgumentException>(act);
+    }
+
+    [Fact]
+    public void RemoveMember_ShouldRemoveMemberFromProject()
+    {
+        var project = Project.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Website");
+
+        var userId = Guid.NewGuid();
+
+        project.AddMember(userId);
+        project.RemoveMember(userId);
+
+        Assert.DoesNotContain(userId, project.MemberIds);
+    }
 }
