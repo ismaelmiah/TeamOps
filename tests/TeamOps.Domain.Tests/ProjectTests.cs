@@ -1,4 +1,5 @@
 using TeamOps.Domain.Projects;
+using TeamOps.Domain.Users;
 
 namespace TeamOps.Domain.Tests;
 
@@ -146,46 +147,91 @@ public class ProjectTests
     }
 
     [Fact]
-    public void AddMember_ShouldAddMemberToProject()
+    public void AddMember_WithNullUser_ShouldThrow()
     {
         var project = Project.Create(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Website");
+        User user = null;
 
-        var userId = Guid.NewGuid();
+        var act = () => project.AddMember(user);
 
-        project.AddMember(userId);
-
-        Assert.Contains(userId, project.MemberIds);
+        Assert.Throws<ArgumentNullException>(act);
     }
 
     [Fact]
-    public void AddMember_ShouldNotAllowDuplicateMember()
+    public void AddMember_ShouldAddUser_WhenUserBelongsToSameTenant()
+    {
+        var tenantId = Guid.NewGuid();
+
+        var project = Project.Create(
+            Guid.NewGuid(),
+            tenantId,
+            "Website");
+
+        var user = User.Create(
+            Guid.NewGuid(),
+            tenantId,
+            "john@example.com",
+            "John");
+
+        project.AddMember(user);
+
+        Assert.Contains(user.Id, project.MemberIds);
+    }
+
+    [Fact]
+    public void AddMember_ShouldRejectUser_WhenUserBelongsToDifferentTenant()
     {
         var project = Project.Create(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Website");
 
-        var userId = Guid.NewGuid();
+        var user = User.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "john@example.com",
+            "John");
 
-        project.AddMember(userId);
-
-        var act = () => project.AddMember(userId);
+        var act = () => project.AddMember(user);
 
         Assert.Throws<InvalidOperationException>(act);
     }
 
     [Fact]
-    public void AddMember_WithEmptyUserId_ShouldThrow()
+    public void AddMember_ShouldNotAllowDuplicateUser()
+    {
+        var tenantId = Guid.NewGuid();
+
+        var project = Project.Create(
+            Guid.NewGuid(),
+            tenantId,
+            "Website");
+
+        var user = User.Create(
+            Guid.NewGuid(),
+            tenantId,
+            "john@example.com",
+            "John");
+
+        project.AddMember(user);
+
+        var act = () => project.AddMember(user);
+
+        Assert.Throws<InvalidOperationException>(act);
+    }
+
+    [Fact]
+    public void RemoveMember_WithEmptyUserId_ShouldThrow()
     {
         var project = Project.Create(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Website");
 
-        var act = () => project.AddMember(Guid.Empty);
+        var act = () => project.RemoveMember(Guid.Empty);
 
         Assert.Throws<ArgumentException>(act);
     }
@@ -193,6 +239,27 @@ public class ProjectTests
     [Fact]
     public void RemoveMember_ShouldRemoveMemberFromProject()
     {
+        var tenantId = Guid.NewGuid();
+        var project = Project.Create(
+            Guid.NewGuid(),
+            tenantId,
+            "Website");
+
+        var user = User.Create(
+            Guid.NewGuid(),
+            tenantId,
+            "john@example.com",
+            "John");
+
+        project.AddMember(user);
+        project.RemoveMember(user.Id);
+
+        Assert.DoesNotContain(user.Id, project.MemberIds);
+    }
+
+    [Fact]
+    public void RemoveMember_ShouldThrow_WhenUserIsNotMember()
+    {
         var project = Project.Create(
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -200,9 +267,9 @@ public class ProjectTests
 
         var userId = Guid.NewGuid();
 
-        project.AddMember(userId);
-        project.RemoveMember(userId);
+        var act = () => project.RemoveMember(userId);
 
-        Assert.DoesNotContain(userId, project.MemberIds);
+        Assert.Throws<InvalidOperationException>(act);
     }
+
 }

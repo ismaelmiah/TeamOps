@@ -1,3 +1,5 @@
+using TeamOps.Domain.Users;
+
 namespace TeamOps.Domain.Projects;
 
 public sealed class Project
@@ -42,17 +44,26 @@ public sealed class Project
         Status = ProjectStatus.Completed;
     }
 
-    public void AddMember(Guid userId)
+    public void AddMember(User user)
     {
-        if (userId == Guid.Empty)
-            throw new ArgumentException("User ID is required.", nameof(userId));
+        ArgumentNullException.ThrowIfNull(user);
 
-        if (!_memberIds.Add(userId))
+        if (user.Id == Guid.Empty)
+            throw new ArgumentException("User ID is required.", nameof(user.Id));
+
+        if (user.TenantId != TenantId)
+            throw new InvalidOperationException("User does not belong to the same tenant as the project.");
+
+        if (!_memberIds.Add(user.Id))
             throw new InvalidOperationException("User is already a project member.");
     }
 
     public void RemoveMember(Guid userId)
     {
-        _memberIds.Remove(userId);
+        if (userId == Guid.Empty)
+            throw new ArgumentException("User ID is required.", nameof(userId));
+
+        if (!_memberIds.Remove(userId))
+            throw new InvalidOperationException("User is not a project member.");
     }
 }
