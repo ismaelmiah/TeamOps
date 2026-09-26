@@ -2,7 +2,8 @@ using TeamOps.Domain.Tasks;
 using TaskStatus = TeamOps.Domain.Tasks.TaskStatus;
 
 namespace TeamOps.Domain.Tests;
-public class TaskTests
+
+public class TaskItemTests
 {
     [Fact]
     public void Create_WithValidProjectId_ShouldCreateTask()
@@ -157,5 +158,89 @@ public class TaskTests
         task.Complete();
 
         Assert.Throws<InvalidOperationException>(() => task.Hold());
+    }
+
+    [Fact]
+    public void AssigneeId_ShouldBeNull_WhenTaskIsCreated()
+    {
+        var task = TaskItem.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Implement login");
+
+        Assert.Null(task.AssigneeId);
+    }
+
+    [Fact]
+    public void AssignTo_ShouldSetAssignee()
+    {
+        var task = TaskItem.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Implement login");
+
+        var userId = Guid.NewGuid();
+
+        task.AssignTo(userId);
+
+        Assert.Equal(userId, task.AssigneeId);
+    }
+
+    [Fact]
+    public void AssignTo_ShouldAllowReassignment()
+    {
+        var task = TaskItem.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Implement login");
+
+        var firstUserId = Guid.NewGuid();
+        var secondUserId = Guid.NewGuid();
+
+        task.AssignTo(firstUserId);
+        task.AssignTo(secondUserId);
+
+        Assert.Equal(secondUserId, task.AssigneeId);
+    }
+
+    [Fact]
+    public void AssignTo_WithEmptyUserId_ShouldThrow()
+    {
+        var task = TaskItem.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Implement login");
+
+        var act = () => task.AssignTo(Guid.Empty);
+
+        Assert.Throws<ArgumentException>(act);
+    }
+
+    [Fact]
+    public void Unassign_ShouldRemoveAssignee()
+    {
+        var task = TaskItem.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Implement login");
+
+        task.AssignTo(Guid.NewGuid());
+
+        task.Unassign();
+
+        Assert.Null(task.AssigneeId);
+    }
+
+    [Fact]
+    public void Unassign_WhenNotAssigned_ShouldRemainUnassigned()
+    {
+        var task = TaskItem.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Implement login");
+
+        task.Unassign();
+
+        Assert.Null(task.AssigneeId);
     }
 }

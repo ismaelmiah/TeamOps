@@ -11,11 +11,10 @@ public sealed class TaskItem
     }
 
     public Guid Id { get; }
-
     public Guid ProjectId { get; }
-
     public string Title { get; }
     public TaskStatus Status { get; private set; }
+    public Guid? AssigneeId { get; private set; }
 
     public static TaskItem Create(Guid id, Guid projectId, string title)
     {
@@ -47,5 +46,18 @@ public sealed class TaskItem
             throw new InvalidOperationException("Only an in-progress task can be completed.");
 
         Status = TaskStatus.Completed;
+    }
+
+    public void AssignTo(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("User ID is required.", nameof(userId));
+
+        AssigneeId = userId;
+    }
+
+    public void Unassign()
+    {
+        AssigneeId = null;
     }
 }
