@@ -18,6 +18,12 @@ public sealed class TaskItem
 
     public static TaskItem Create(Guid id, Guid projectId, string title)
     {
+        if (id == Guid.Empty)
+            throw new ArgumentException("Task ID is required.", nameof(id));
+
+        if (projectId == Guid.Empty)
+            throw new ArgumentException("Project ID is required.", nameof(projectId));
+
         if (string.IsNullOrWhiteSpace(title))
             throw new ArgumentException("Task title is required.", nameof(title));
 
