@@ -153,7 +153,7 @@ public class ProjectTests
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Website");
-        User user = null;
+        User? user = null;
 
         var act = () => project.AddMember(user);
 

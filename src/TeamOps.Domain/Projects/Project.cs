@@ -47,7 +47,7 @@ public sealed class Project
         Status = ProjectStatus.Completed;
     }
 
-    public void AddMember(User user)
+    public void AddMember(User? user)
     {
         ArgumentNullException.ThrowIfNull(user);
 
