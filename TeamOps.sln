@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamOps.Infrastructure", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamOps.Infrastructure.Tests", "tests\TeamOps.Infrastructure.Tests\TeamOps.Infrastructure.Tests.csproj", "{E86E3F42-B664-4B73-9BE9-D8E32F222247}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamOps.Api", "src\TeamOps.Api\TeamOps.Api.csproj", "{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,18 @@ Global
 		{E86E3F42-B664-4B73-9BE9-D8E32F222247}.Release|x64.Build.0 = Release|Any CPU
 		{E86E3F42-B664-4B73-9BE9-D8E32F222247}.Release|x86.ActiveCfg = Release|Any CPU
 		{E86E3F42-B664-4B73-9BE9-D8E32F222247}.Release|x86.Build.0 = Release|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Debug|x64.Build.0 = Debug|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Debug|x86.Build.0 = Debug|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Release|x64.ActiveCfg = Release|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Release|x64.Build.0 = Release|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Release|x86.ActiveCfg = Release|Any CPU
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -112,5 +126,6 @@ Global
 		{9A1E547F-2993-4D70-8324-049F15639B05} = {1ADC5F91-3D76-4949-9586-64DF4F903923}
 		{032AE29F-059A-4793-9389-409EB0F0BDFC} = {212F800C-D6D9-4E82-811C-841E6E396F7D}
 		{E86E3F42-B664-4B73-9BE9-D8E32F222247} = {1ADC5F91-3D76-4949-9586-64DF4F903923}
+		{3734F3C6-FC11-4553-A6E1-8EB239ED0A08} = {212F800C-D6D9-4E82-811C-841E6E396F7D}
 	EndGlobalSection
 EndGlobal
