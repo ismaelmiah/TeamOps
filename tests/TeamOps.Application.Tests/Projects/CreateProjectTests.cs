@@ -5,12 +5,24 @@ namespace TeamOps.Application.Tests.Projects;
 
 public class CreateProjectTests
 {
+    private sealed class FakeProjectRepository : IProjectRepository
+    {
+        public List<Project> Projects { get; } = [];
+
+        public Task AddAsync(Project project)
+        {
+            Projects.Add(project);
+            return Task.CompletedTask;
+        }
+    }
+
     [Fact]
     public async Task Execute_ShouldCreateProject()
     {
         var tenantId = Guid.NewGuid();
         var command = new CreateProjectCommand(tenantId, "Website");
-        var handler = new CreateProjectHandler();
+        var repository = new FakeProjectRepository();
+        var handler = new CreateProjectHandler(repository);
 
         var project = await handler.Handle(command);
 
@@ -24,7 +36,8 @@ public class CreateProjectTests
     public async Task Execute_ShouldRejectEmptyTenantId()
     {
         var command = new CreateProjectCommand(Guid.Empty, "Website");
-        var handler = new CreateProjectHandler();
+        var repository = new FakeProjectRepository();
+        var handler = new CreateProjectHandler(repository);
 
         var act = () => handler.Handle(command);
 
@@ -35,7 +48,8 @@ public class CreateProjectTests
     public async Task Execute_ShouldRejectEmptyProjectName()
     {
         var command = new CreateProjectCommand(Guid.NewGuid(), "");
-        var handler = new CreateProjectHandler();
+        var repository = new FakeProjectRepository();
+        var handler = new CreateProjectHandler(repository);
 
         var act = () => handler.Handle(command);
 

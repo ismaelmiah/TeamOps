@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TeamOps.Application.Projects;
 using TeamOps.Infrastructure.Persistence;
+using TeamOps.Infrastructure.Persistence.Projects;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<CreateProjectHandler>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>
     options.UseNpgsql(

@@ -2,12 +2,14 @@ using TeamOps.Domain.Projects;
 
 namespace TeamOps.Application.Projects;
 
-public sealed class CreateProjectHandler
+public sealed class CreateProjectHandler(IProjectRepository repository)
 {
-    public Task<Project> Handle(CreateProjectCommand command)
+    public async Task<Project> Handle(CreateProjectCommand command)
     {
         var project = Project.Create(Guid.NewGuid(), command.TenantId, command.Name);
 
-        return Task.FromResult(project);
+        await repository.AddAsync(project);
+
+        return project;
     }
 }
