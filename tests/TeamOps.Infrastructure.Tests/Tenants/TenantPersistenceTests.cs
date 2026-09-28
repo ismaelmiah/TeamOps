@@ -41,9 +41,8 @@ public class TenantPersistenceTests
             .Options;
 
         await using var context = new TeamOpsDbContext(options);
-
-        await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
+        
+        await context.Database.MigrateAsync();
 
         var tenant = Tenant.Create(
             Guid.NewGuid(),
