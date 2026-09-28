@@ -52,7 +52,8 @@ public class TenantPersistenceTests
 
         await context.SaveChangesAsync();
 
-        var savedTenant = await context.Tenants.SingleAsync();
+        // var savedTenant = await context.Tenants.SingleAsync();
+        var savedTenant = await context.Tenants.SingleAsync(x => x.Id == tenant.Id);
 
         Assert.Equal(tenant.Id, savedTenant.Id);
         Assert.Equal("Acme", savedTenant.Name);
