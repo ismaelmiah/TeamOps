@@ -12,6 +12,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped<CreateProjectHandler>();
 builder.Services.AddScoped<GetProjectHandler>();
+builder.Services.AddScoped<CompleteProjectHandler>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>

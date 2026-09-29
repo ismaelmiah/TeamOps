@@ -5,7 +5,10 @@ namespace TeamOps.Api.Controllers;
 
 [ApiController]
 [Route("api/projects")]
-public sealed class ProjectController(CreateProjectHandler createProjectHandler, GetProjectHandler getProjectHandler) : ControllerBase
+public sealed class ProjectController(
+    CreateProjectHandler createProjectHandler,
+    GetProjectHandler getProjectHandler,
+    CompleteProjectHandler completeProjectHandler) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreateProjectCommand command)
@@ -36,5 +39,13 @@ public sealed class ProjectController(CreateProjectHandler createProjectHandler,
             project.TenantId,
             project.Name
         });
+    }
+
+    [HttpPost("{id:guid}/complete")]
+    public async Task<IActionResult> Complete(Guid id)
+    {
+        await completeProjectHandler.Handle(new CompleteProjectCommand(id));
+
+        return NoContent();
     }
 }
