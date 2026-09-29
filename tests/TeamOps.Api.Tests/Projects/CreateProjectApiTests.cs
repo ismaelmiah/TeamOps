@@ -1,16 +1,20 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
+using TeamOps.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TeamOps.Api.Tests.Projects;
 
-public class CreateProjectApiTests : IClassFixture<WebApplicationFactory<Program>>
+public class CreateProjectApiTests : IClassFixture<TeamOpsApiFactory>
 {
     private readonly HttpClient _client;
+    private readonly TeamOpsApiFactory _factory;
 
-    public CreateProjectApiTests(WebApplicationFactory<Program> factory)
+    public CreateProjectApiTests(TeamOpsApiFactory factory)
     {
         _client = factory.CreateClient();
+        _factory = factory;
     }
 
     [Fact]
@@ -34,6 +38,14 @@ public class CreateProjectApiTests : IClassFixture<WebApplicationFactory<Program
         Assert.NotEqual(Guid.Empty, project.Id);
         Assert.Equal(tenantId, project.TenantId);
         Assert.Equal("Project Alpha", project.Name);
+
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<TeamOpsDbContext>();
+
+        var savedProject = await context.Projects.SingleAsync(x => x.Id == project!.Id);
+
+        Assert.Equal(project.TenantId, savedProject.TenantId);
+        Assert.Equal(project.Name, savedProject.Name);
     }
 
     private sealed record ProjectResponse(Guid Id, Guid TenantId, string Name);
