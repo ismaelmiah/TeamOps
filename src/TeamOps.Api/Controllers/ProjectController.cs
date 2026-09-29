@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TeamOps.Application.Projects;
+using TeamOps.Application.Users;
 
 namespace TeamOps.Api.Controllers;
 
@@ -9,7 +10,11 @@ public sealed class ProjectController(
     CreateProjectHandler createProjectHandler,
     GetProjectHandler getProjectHandler,
     GetProjectsHandler getProjectsHandler,
-    CompleteProjectHandler completeProjectHandler) : ControllerBase
+    CompleteProjectHandler completeProjectHandler,
+    IUserRepository userRepository,
+    AddProjectMemberHandler addProjectMemberHandler,
+    IProjectRepository projectRepository
+    ) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreateProjectCommand command)
@@ -59,6 +64,25 @@ public sealed class ProjectController(
     public async Task<IActionResult> Complete(Guid id)
     {
         await completeProjectHandler.Handle(new CompleteProjectCommand(id));
+
+        return NoContent();
+    }
+
+    [HttpPost("{projectId:guid}/members/{userId:guid}")]
+    public async Task<IActionResult> AddMember(
+    Guid projectId,
+    Guid userId)
+    {
+        var project = await projectRepository.GetByIdAsync(projectId);
+        var user = await userRepository.GetByIdAsync(userId);
+
+        if (project is null || user is null)
+            return NotFound();
+
+        await addProjectMemberHandler.Handle(
+            new AddProjectMemberCommand(project, user));
+
+        await projectRepository.UpdateAsync(project);
 
         return NoContent();
     }

@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using TeamOps.Application.Projects;
+using TeamOps.Application.Users;
 using TeamOps.Infrastructure.Persistence;
 using TeamOps.Infrastructure.Persistence.Projects;
+using TeamOps.Infrastructure.Persistence.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +16,10 @@ builder.Services.AddScoped<CreateProjectHandler>();
 builder.Services.AddScoped<GetProjectHandler>();
 builder.Services.AddScoped<GetProjectsHandler>();
 builder.Services.AddScoped<CompleteProjectHandler>();
+builder.Services.AddScoped<AddProjectMemberHandler>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<CreateUserHandler>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>
     options.UseNpgsql(

@@ -14,6 +14,21 @@ public class CreateProjectTests
             Projects.Add(project);
             return Task.CompletedTask;
         }
+
+        public Task<Project?> GetByIdAsync(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyList<Project>> GetByTenantIdAsync(Guid tenantId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsync(Project project)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [Fact]
