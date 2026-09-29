@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TeamOps.Application.Projects;
 using TeamOps.Domain.Projects;
 
@@ -10,5 +11,11 @@ public sealed class ProjectRepository(TeamOpsDbContext context) : IProjectReposi
         context.Projects.Add(project);
 
         await context.SaveChangesAsync();
+    }
+
+
+    public async Task<Project?> GetByIdAsync(Guid id)
+    {
+        return await context.Projects.SingleOrDefaultAsync(x => x.Id == id);
     }
 }
