@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TeamOps.Domain.Projects;
 using TeamOps.Domain.Tenants;
+using TeamOps.Domain.Users;
 using TeamOps.Infrastructure.Persistence.Configurations;
 
 namespace TeamOps.Infrastructure.Persistence;
@@ -9,10 +10,12 @@ public sealed class TeamOpsDbContext(DbContextOptions<TeamOpsDbContext> options)
 {
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new TenantConfiguration());
         modelBuilder.ApplyConfiguration(new ProjectConfiguration());
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
     }
 }

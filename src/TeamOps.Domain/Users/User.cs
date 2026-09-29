@@ -37,7 +37,7 @@ public sealed class User
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name is required.", nameof(name));
 
-        if (email.Length > 100)
+        if (email.Length > 200)
             throw new ArgumentException("Email is too long.", nameof(email));
 
         var user = new User(id, tenantId, email.Trim(), name.Trim());
