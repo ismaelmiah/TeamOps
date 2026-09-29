@@ -8,6 +8,7 @@ namespace TeamOps.Api.Controllers;
 public sealed class ProjectController(
     CreateProjectHandler createProjectHandler,
     GetProjectHandler getProjectHandler,
+    GetProjectsHandler getProjectsHandler,
     CompleteProjectHandler completeProjectHandler) : ControllerBase
 {
     [HttpPost]
@@ -39,6 +40,19 @@ public sealed class ProjectController(
             project.TenantId,
             project.Name
         });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProjects(Guid tenantId)
+    {
+        var projects = await getProjectsHandler.Handle(tenantId);
+
+        return Ok(projects.Select(project => new
+        {
+            project.Id,
+            project.TenantId,
+            project.Name
+        }));
     }
 
     [HttpPost("{id:guid}/complete")]

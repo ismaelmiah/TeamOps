@@ -17,6 +17,12 @@ public sealed class ProjectRepository(TeamOpsDbContext context) : IProjectReposi
     {
         return await context.Projects.SingleOrDefaultAsync(x => x.Id == id);
     }
+    public async Task<IReadOnlyList<Project>> GetByTenantIdAsync(Guid tenantId)
+    {
+        return await context.Projects
+            .Where(x => x.TenantId == tenantId)
+            .ToListAsync();
+    }
 
     public async Task UpdateAsync(Project project)
     {

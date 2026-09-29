@@ -53,6 +53,45 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+
+    [Fact]
+    public async Task Get_ShouldReturnOnlyProjectsForTenant()
+    {
+        var tenantA = Guid.NewGuid();
+        var tenantB = Guid.NewGuid();
+
+        await CreateProject(tenantA, "Project A1");
+        await CreateProject(tenantA, "Project A2");
+        await CreateProject(tenantB, "Project B1");
+
+        var response = await _client.GetAsync($"/api/projects?tenantId={tenantA}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var projects = await response.Content.ReadFromJsonAsync<List<ProjectResponse>>();
+
+        Assert.NotNull(projects);
+
+        Assert.Equal(2, projects.Count);
+        Assert.All(projects, project => Assert.Equal(tenantA, project.TenantId));
+
+        Assert.Contains(projects, project => project.Name == "Project A1");
+        Assert.Contains(projects, project => project.Name == "Project A2");
+        Assert.DoesNotContain(projects, project => project.Name == "Project B1");
+    }
+
+    private async Task CreateProject(Guid tenantId, string name)
+    {
+        var response = await _client.PostAsJsonAsync(
+            "/api/projects",
+            new
+            {
+                TenantId = tenantId,
+                Name = name
+            });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
     private sealed record ProjectResponse(
         Guid Id,
         Guid TenantId,
