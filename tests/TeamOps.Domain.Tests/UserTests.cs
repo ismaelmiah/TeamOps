@@ -120,7 +120,7 @@ public class UserTests
     {
         var id = Guid.NewGuid();
         var tenantId = Guid.NewGuid();
-        var email = new string('A', 101) + "@example.com"; // Assuming maximum length is 100
+        var email = new string('A', 201) + "@example.com"; // Assuming maximum length is 200
 
         var act = () => User.Create(id, tenantId, email, "John");
 
