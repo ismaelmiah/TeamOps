@@ -2,15 +2,17 @@ using TeamOps.Domain.Tasks;
 
 namespace TeamOps.Application.Tasks;
 
-public sealed class CreateTaskHandler
+public sealed class CreateTaskHandler(ITaskRepository repository)
 {
-    public Task<TaskItem> Handle(CreateTaskCommand command)
+    public async Task<TaskItem> Handle(CreateTaskCommand command)
     {
         var task = TaskItem.Create(
             Guid.NewGuid(),
             command.ProjectId,
             command.Title);
 
-        return Task.FromResult(task);
+        await repository.AddAsync(task);
+
+        return task;
     }
 }
