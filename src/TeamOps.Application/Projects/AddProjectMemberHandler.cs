@@ -1,11 +1,19 @@
+using TeamOps.Domain.Projects;
+
 namespace TeamOps.Application.Projects;
 
-public sealed class AddProjectMemberHandler
+public sealed class AddProjectMemberHandler(
+    IProjectMemberRepository repository)
 {
-    public Task Handle(AddProjectMemberCommand command)
+    public async Task Handle(AddProjectMemberCommand command)
     {
         command.Project.AddMember(command.User);
 
-        return Task.CompletedTask;
+        var member = ProjectMember.Create(
+                    Guid.NewGuid(),
+                    command.Project.Id,
+                    command.User.Id);
+
+        await repository.AddAsync(member);
     }
 }

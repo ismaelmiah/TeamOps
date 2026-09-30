@@ -69,9 +69,7 @@ public sealed class ProjectController(
     }
 
     [HttpPost("{projectId:guid}/members/{userId:guid}")]
-    public async Task<IActionResult> AddMember(
-    Guid projectId,
-    Guid userId)
+    public async Task<IActionResult> AddMember(Guid projectId, Guid userId)
     {
         var project = await projectRepository.GetByIdAsync(projectId);
         var user = await userRepository.GetByIdAsync(userId);
@@ -79,10 +77,14 @@ public sealed class ProjectController(
         if (project is null || user is null)
             return NotFound();
 
-        await addProjectMemberHandler.Handle(
-            new AddProjectMemberCommand(project, user));
-
-        await projectRepository.UpdateAsync(project);
+        try
+        {
+            await addProjectMemberHandler.Handle(new AddProjectMemberCommand(project, user));
+        }
+        catch (InvalidOperationException)
+        {
+            return BadRequest();
+        }
 
         return NoContent();
     }

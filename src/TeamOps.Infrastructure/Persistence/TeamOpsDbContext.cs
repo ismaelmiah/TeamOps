@@ -11,11 +11,13 @@ public sealed class TeamOpsDbContext(DbContextOptions<TeamOpsDbContext> options)
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new TenantConfiguration());
         modelBuilder.ApplyConfiguration(new ProjectConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new ProjectMemberConfiguration());
     }
 }
