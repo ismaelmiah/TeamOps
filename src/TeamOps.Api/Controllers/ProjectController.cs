@@ -13,7 +13,8 @@ public sealed class ProjectController(
     CompleteProjectHandler completeProjectHandler,
     IUserRepository userRepository,
     AddProjectMemberHandler addProjectMemberHandler,
-    IProjectRepository projectRepository
+    IProjectRepository projectRepository,
+    RemoveProjectMemberHandler removeProjectMemberHandler
     ) : ControllerBase
 {
     [HttpPost]
@@ -84,6 +85,21 @@ public sealed class ProjectController(
         catch (InvalidOperationException)
         {
             return BadRequest();
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{projectId:guid}/members/{userId:guid}")]
+    public async Task<IActionResult> RemoveMember(Guid projectId, Guid userId)
+    {
+        try
+        {
+            await removeProjectMemberHandler.Handle(new RemoveProjectMemberCommand(projectId, userId));
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound();
         }
 
         return NoContent();

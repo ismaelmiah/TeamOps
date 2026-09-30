@@ -12,6 +12,16 @@ public class AddProjectMemberTests
         {
             throw new NotImplementedException();
         }
+
+        public Task<ProjectMember?> GetAsync(Guid projectId, Guid userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveAsync(ProjectMember member)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     [Fact]
