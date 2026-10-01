@@ -25,6 +25,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 builder.Services.AddScoped<RemoveProjectMemberHandler>();
 builder.Services.AddScoped<CreateTaskHandler>();
+builder.Services.AddScoped<AssignTaskHandler>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>

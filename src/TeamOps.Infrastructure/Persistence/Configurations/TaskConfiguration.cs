@@ -4,8 +4,7 @@ using TeamOps.Domain.Tasks;
 
 namespace TeamOps.Infrastructure.Persistence.Configurations;
 
-public sealed class TaskConfiguration
-    : IEntityTypeConfiguration<TaskItem>
+public sealed class TaskConfiguration : IEntityTypeConfiguration<TaskItem>
 {
     public void Configure(EntityTypeBuilder<TaskItem> builder)
     {

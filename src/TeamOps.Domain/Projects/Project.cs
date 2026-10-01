@@ -101,9 +101,6 @@ public sealed class Project
         if (user.TenantId != TenantId)
             throw new InvalidOperationException("User does not belong to the project tenant.");
 
-        if (!_taskIds.Contains(task.Id))
-            throw new InvalidOperationException("Task is not part of this project.");
-
         task.AssignTo(user.Id);
     }
 }

@@ -4,8 +4,7 @@ using TeamOps.Domain.Tasks;
 
 namespace TeamOps.Infrastructure.Persistence.Tasks;
 
-public sealed class TaskRepository(
-    TeamOpsDbContext context) : ITaskRepository
+public sealed class TaskRepository(TeamOpsDbContext context) : ITaskRepository
 {
     public async Task AddAsync(TaskItem task)
     {
@@ -17,5 +16,11 @@ public sealed class TaskRepository(
     {
         return await context.Tasks
             .SingleOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task UpdateAsync(TaskItem task)
+    {
+        context.Tasks.Update(task);
+        await context.SaveChangesAsync();
     }
 }

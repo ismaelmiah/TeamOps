@@ -8,19 +8,23 @@ public class AddProjectMemberTests
 {
     class FakeProjectMemberRepository : IProjectMemberRepository
     {
-        public Task AddAsync(ProjectMember member)
+        private List<ProjectMember> ProjectMembers { get; } = [];
+        public async Task AddAsync(ProjectMember member)
         {
-            throw new NotImplementedException();
+            ProjectMembers.Add(member);
         }
 
-        public Task<ProjectMember?> GetAsync(Guid projectId, Guid userId)
+        public async Task<ProjectMember?> GetAsync(Guid projectId, Guid userId)
         {
-            throw new NotImplementedException();
+            return await Task.FromResult(ProjectMembers
+                .Find(x =>
+                    x.ProjectId == projectId &&
+                    x.UserId == userId));
         }
 
-        public Task RemoveAsync(ProjectMember member)
+        public async Task RemoveAsync(ProjectMember member)
         {
-            throw new NotImplementedException();
+            ProjectMembers.Remove(member);
         }
     }
 

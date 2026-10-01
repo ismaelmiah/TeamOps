@@ -12,17 +12,12 @@ public sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
 
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.Id)
-            .ValueGeneratedNever();
+        builder.Property(x => x.Id).ValueGeneratedNever();
 
-        builder.Property(x => x.TenantId)
-            .IsRequired();
+        builder.Property(x => x.TenantId).IsRequired();
 
-        builder.Property(x => x.Name)
-            .HasMaxLength(100)
-            .IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(100).IsRequired();
 
-        builder.Property(x => x.Status)
-            .IsRequired();
+        builder.Property(x => x.Status).IsRequired();
     }
 }

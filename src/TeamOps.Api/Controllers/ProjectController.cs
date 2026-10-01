@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TeamOps.Application.Projects;
+using TeamOps.Application.Tasks;
 using TeamOps.Application.Users;
 
 namespace TeamOps.Api.Controllers;
@@ -7,14 +8,16 @@ namespace TeamOps.Api.Controllers;
 [ApiController]
 [Route("api/projects")]
 public sealed class ProjectController(
-    CreateProjectHandler createProjectHandler,
+    AssignTaskHandler assignTaskHandler,
     GetProjectHandler getProjectHandler,
     GetProjectsHandler getProjectsHandler,
+    CreateProjectHandler createProjectHandler,
     CompleteProjectHandler completeProjectHandler,
-    IUserRepository userRepository,
     AddProjectMemberHandler addProjectMemberHandler,
-    IProjectRepository projectRepository,
-    RemoveProjectMemberHandler removeProjectMemberHandler
+    RemoveProjectMemberHandler removeProjectMemberHandler,
+    ITaskRepository taskRepository,
+    IUserRepository userRepository,
+    IProjectRepository projectRepository
     ) : ControllerBase
 {
     [HttpPost]
@@ -101,6 +104,38 @@ public sealed class ProjectController(
         {
             return NotFound();
         }
+
+        return NoContent();
+    }
+
+    [HttpPost("{projectId:guid}/tasks/{taskId:guid}/assignee/{userId:guid}")]
+    public async Task<IActionResult> AssignTask(Guid projectId, Guid taskId, Guid userId)
+    {
+        var project = await projectRepository.GetByIdAsync(projectId);
+
+        if (project is null)
+            return NotFound();
+
+        var user = await userRepository.GetByIdAsync(userId);
+
+        if (user is null)
+            return NotFound();
+
+        var task = await taskRepository.GetByIdAsync(taskId);
+
+        if (task is null)
+            return NotFound();
+
+        try
+        {
+            await assignTaskHandler.Handle(new AssignTaskCommand(project, task, user));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+
+        await taskRepository.UpdateAsync(task);
 
         return NoContent();
     }

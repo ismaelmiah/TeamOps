@@ -7,8 +7,7 @@ using TaskStatus = TeamOps.Domain.Tasks.TaskStatus;
 
 namespace TeamOps.Api.Tests.Tasks;
 
-public class CreateTaskApiTests
-    : IClassFixture<TeamOpsApiFactory>
+public class CreateTaskApiTests : IClassFixture<TeamOpsApiFactory>
 {
     private readonly HttpClient _client;
     private readonly TeamOpsApiFactory _factory;

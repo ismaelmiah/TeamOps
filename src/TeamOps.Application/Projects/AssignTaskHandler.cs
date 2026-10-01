@@ -1,6 +1,8 @@
+using TeamOps.Application.Tasks;
+
 namespace TeamOps.Application.Projects;
 
-public sealed class AssignTaskHandler
+public sealed class AssignTaskHandler()
 {
     public Task Handle(AssignTaskCommand command)
     {

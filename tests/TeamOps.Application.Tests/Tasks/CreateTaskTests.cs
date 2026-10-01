@@ -1,4 +1,7 @@
+using TeamOps.Application.Projects;
 using TeamOps.Application.Tasks;
+using TeamOps.Application.Tests.Projects;
+using TeamOps.Domain.Tasks;
 using TaskStatus = TeamOps.Domain.Tasks.TaskStatus;
 
 namespace TeamOps.Application.Tests.Tasks;
@@ -7,30 +10,42 @@ public class CreateTaskTests
 {
     class FakeTaskRepository : ITaskRepository
     {
-        public Task AddAsync(Domain.Tasks.TaskItem task)
+        private List<TaskItem> Tasks { get; } = [];
+
+        public async Task AddAsync(TaskItem task)
         {
-            throw new NotImplementedException();
+            Tasks.Add(task);
         }
 
-        public Task<Domain.Tasks.TaskItem?> GetByIdAsync(Guid id)
+        public async Task<TaskItem?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            return Tasks.Single(x => x.Id == id);
+        }
+
+        public async Task UpdateAsync(TaskItem task)
+        {
+            var tsk = Tasks.Find(x => x.Id == task.Id);
+            Tasks.Remove(tsk);
+            Tasks.Add(task);
         }
     }
 
     [Fact]
     public async Task Execute_ShouldCreateTask()
     {
-        var projectId = Guid.NewGuid();
+        var taskRepository = new FakeTaskRepository();
+        var projectRepository = new FakeProjectRepository();
+        var handler = new CreateTaskHandler(taskRepository, projectRepository);
 
-        var command = new CreateTaskCommand(projectId, "Implement login");
-        var repository = new FakeTaskRepository();
-        var handler = new CreateTaskHandler(repository);
+        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository);
+        var project = await projectHandler.Handle(projectCommand);
 
-        var task = await handler.Handle(command);
+        var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
+        var task = await handler.Handle(taskCommand);
 
         Assert.NotEqual(Guid.Empty, task.Id);
-        Assert.Equal(projectId, task.ProjectId);
+        Assert.Equal(project.Id, task.ProjectId);
         Assert.Equal("Implement login", task.Title);
         Assert.Equal(TaskStatus.Pending, task.Status);
         Assert.Null(task.AssigneeId);
@@ -39,11 +54,17 @@ public class CreateTaskTests
     [Fact]
     public async Task Execute_ShouldRejectEmptyTitle()
     {
-        var command = new CreateTaskCommand(Guid.NewGuid(), "");
-        var repository = new FakeTaskRepository();
-        var handler = new CreateTaskHandler(repository);
+        var taskRepository = new FakeTaskRepository();
+        var projectRepository = new FakeProjectRepository();
+        var handler = new CreateTaskHandler(taskRepository, projectRepository);
 
-        var act = () => handler.Handle(command);
+        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository);
+        var project = await projectHandler.Handle(projectCommand);
+
+        var taskCommand = new CreateTaskCommand(project.Id, "");
+
+        var act = () => handler.Handle(taskCommand);
 
         await Assert.ThrowsAsync<ArgumentException>(act);
     }
@@ -52,8 +73,9 @@ public class CreateTaskTests
     public async Task Execute_ShouldRejectEmptyProjectId()
     {
         var command = new CreateTaskCommand(Guid.Empty, "Implement login");
-        var repository = new FakeTaskRepository();
-        var handler = new CreateTaskHandler(repository);
+        var taskRepository = new FakeTaskRepository();
+        var projectRepository = new FakeProjectRepository();
+        var handler = new CreateTaskHandler(taskRepository, projectRepository);
 
         var act = () => handler.Handle(command);
 
