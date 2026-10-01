@@ -11,7 +11,8 @@ public sealed class TasksController(
     StartTaskHandler startTaskHandler,
     HoldTaskHandler holdTaskHandler,
     CompleteTaskHandler completeTaskHandler,
-    GetTaskHandler getTaskHandler) : ControllerBase
+    GetTaskHandler getTaskHandler,
+    UpdateTaskHandler updateTaskHandler) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskCommand command)
@@ -110,5 +111,27 @@ public sealed class TasksController(
             task.Status,
             task.AssigneeId
         });
+    }
+
+    [HttpPut("{taskId:guid}")]
+    public async Task<IActionResult> Update(Guid taskId, UpdateTaskCommand command)
+    {
+        if (taskId != command.TaskId)
+            return BadRequest();
+
+        try
+        {
+            await updateTaskHandler.Handle(command);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+        catch (ArgumentException)
+        {
+            return BadRequest();
+        }
+
+        return NoContent();
     }
 }

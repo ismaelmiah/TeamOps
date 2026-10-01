@@ -12,7 +12,7 @@ public sealed class TaskItem
 
     public Guid Id { get; }
     public Guid ProjectId { get; }
-    public string Title { get; }
+    public string Title { get; private set; }
     public TaskStatus Status { get; private set; }
     public Guid? AssigneeId { get; private set; }
 
@@ -28,6 +28,21 @@ public sealed class TaskItem
             throw new ArgumentException("Task title is required.", nameof(title));
 
         return new TaskItem(id, projectId, title.Trim(), TaskStatus.Pending);
+    }
+
+    public void UpdateTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
+            throw new ArgumentException(
+                "Task title is required.",
+                nameof(title));
+
+        if (title.Length > 200)
+            throw new ArgumentException(
+                "Task title cannot exceed 200 characters.",
+                nameof(title));
+
+        Title = title.Trim();
     }
 
     public void Start()
