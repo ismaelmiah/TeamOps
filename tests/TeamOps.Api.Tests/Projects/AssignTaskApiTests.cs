@@ -141,20 +141,4 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Null(savedTask.AssigneeId);
     }
 
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
-
-    private sealed record UserResponse(
-        Guid Id,
-        Guid TenantId,
-        string Email,
-        string Name,
-        int Role);
-
-    private sealed record TaskResponse(
-        Guid Id,
-        Guid ProjectId,
-        string Title);
 }

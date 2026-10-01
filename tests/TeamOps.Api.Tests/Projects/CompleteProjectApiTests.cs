@@ -49,9 +49,4 @@ public class CompleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.Equal(ProjectStatus.Completed, savedProject.Status);
     }
-
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
 }

@@ -133,14 +133,4 @@ public class CreateTaskApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
-
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
-
-    private sealed record TaskResponse(
-        Guid Id,
-        Guid ProjectId,
-        string Title);
 }

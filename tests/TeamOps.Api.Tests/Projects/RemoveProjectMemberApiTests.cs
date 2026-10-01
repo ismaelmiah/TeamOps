@@ -178,16 +178,4 @@ public class RemoveProjectMemberApiTests
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
-
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
-
-    private sealed record UserResponse(
-        Guid Id,
-        Guid TenantId,
-        string Email,
-        string Name,
-        int Role);
 }

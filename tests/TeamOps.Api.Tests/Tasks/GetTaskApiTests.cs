@@ -58,14 +58,4 @@ public class GetTaskApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
-
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
-
-    private sealed record TaskResponse(
-        Guid Id,
-        Guid ProjectId,
-        string Title);
 }

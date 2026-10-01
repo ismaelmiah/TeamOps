@@ -133,15 +133,4 @@ public class AddProjectMemberApiTests
 
         Assert.Null(membership);
     }
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
-
-    private sealed record UserResponse(
-        Guid Id,
-        Guid TenantId,
-        string Email,
-        string Name,
-        int Role);
 }

@@ -128,13 +128,4 @@ public class TaskLifecycleApiTests : IClassFixture<TeamOpsApiFactory>
 
         return task;
     }
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
-
-    private sealed record TaskResponse(
-        Guid Id,
-        Guid ProjectId,
-        string Title);
 }

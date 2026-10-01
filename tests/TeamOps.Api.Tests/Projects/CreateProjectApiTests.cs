@@ -47,6 +47,4 @@ public class CreateProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Equal(project.TenantId, savedProject.TenantId);
         Assert.Equal(project.Name, savedProject.Name);
     }
-
-    private sealed record ProjectResponse(Guid Id, Guid TenantId, string Name);
 }

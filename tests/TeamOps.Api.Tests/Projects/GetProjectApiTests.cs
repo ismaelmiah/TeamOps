@@ -92,8 +92,4 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
-    private sealed record ProjectResponse(
-        Guid Id,
-        Guid TenantId,
-        string Name);
 }
