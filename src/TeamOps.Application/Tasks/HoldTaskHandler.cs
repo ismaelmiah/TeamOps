@@ -1,6 +1,6 @@
 namespace TeamOps.Application.Tasks;
 
-public sealed class CompleteTaskHandler(ITaskRepository repository)
+public sealed class HoldTaskHandler(ITaskRepository repository)
 {
     public async Task Handle(Guid taskId)
     {
@@ -9,7 +9,7 @@ public sealed class CompleteTaskHandler(ITaskRepository repository)
         if (task is null)
             throw new KeyNotFoundException("Task not found.");
 
-        task.Complete();
+        task.Hold();
 
         await repository.UpdateAsync(task);
     }

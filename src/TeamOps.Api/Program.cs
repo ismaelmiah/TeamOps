@@ -27,6 +27,9 @@ builder.Services.AddScoped<RemoveProjectMemberHandler>();
 builder.Services.AddScoped<CreateTaskHandler>();
 builder.Services.AddScoped<AssignTaskHandler>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<StartTaskHandler>();
+builder.Services.AddScoped<HoldTaskHandler>();
+builder.Services.AddScoped<CompleteTaskHandler>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>
     options.UseNpgsql(

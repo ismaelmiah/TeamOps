@@ -8,7 +8,7 @@ namespace TeamOps.Application.Tests.Tasks;
 
 public class CreateTaskTests
 {
-    class FakeTaskRepository : ITaskRepository
+    internal class FakeTaskRepository : ITaskRepository
     {
         private List<TaskItem> Tasks { get; } = [];
 
@@ -25,7 +25,11 @@ public class CreateTaskTests
         public async Task UpdateAsync(TaskItem task)
         {
             var tsk = Tasks.Find(x => x.Id == task.Id);
-            Tasks.Remove(tsk);
+            if (tsk is not null)
+            {
+                Tasks.Remove(tsk);
+            }
+            
             Tasks.Add(task);
         }
     }

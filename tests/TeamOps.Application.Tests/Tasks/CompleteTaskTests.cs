@@ -1,5 +1,7 @@
+using TeamOps.Application.Projects;
 using TeamOps.Application.Tasks;
-using TeamOps.Domain.Tasks;
+using TeamOps.Application.Tests.Projects;
+using static TeamOps.Application.Tests.Tasks.CreateTaskTests;
 using TaskStatus = TeamOps.Domain.Tasks.TaskStatus;
 
 namespace TeamOps.Application.Tests.Tasks;
@@ -9,18 +11,21 @@ public class CompleteTaskTests
     [Fact]
     public async Task Execute_ShouldCompleteInProgressTask()
     {
-        var task = TaskItem.Create(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "Implement login");
+        var taskRepository = new FakeTaskRepository();
+        var projectRepository = new FakeProjectRepository();
+        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository);
+        var project = await projectHandler.Handle(projectCommand);
+
+        var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
+        var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
+        var task = await createHandler.Handle(taskCommand);
 
         task.Start();
 
-        var command = new CompleteTaskCommand(task);
+        var completeHandler = new CompleteTaskHandler(taskRepository);
 
-        var handler = new CompleteTaskHandler();
-
-        await handler.Handle(command);
+        await completeHandler.Handle(task.Id);
 
         Assert.Equal(TaskStatus.Completed, task.Status);
     }
@@ -28,16 +33,19 @@ public class CompleteTaskTests
     [Fact]
     public async Task Execute_ShouldRejectPendingTask()
     {
-        var task = TaskItem.Create(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "Implement login");
+        var taskRepository = new FakeTaskRepository();
+        var projectRepository = new FakeProjectRepository();
+        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository);
+        var project = await projectHandler.Handle(projectCommand);
 
-        var command = new CompleteTaskCommand(task);
+        var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
+        var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
+        var task = await createHandler.Handle(taskCommand);
 
-        var handler = new CompleteTaskHandler();
+        var completeHandler = new CompleteTaskHandler(taskRepository);
 
-        var act = () => handler.Handle(command);
+        var act = () => completeHandler.Handle(task.Id);
 
         await Assert.ThrowsAsync<InvalidOperationException>(act);
     }
@@ -45,19 +53,24 @@ public class CompleteTaskTests
     [Fact]
     public async Task Execute_ShouldRejectAlreadyCompletedTask()
     {
-        var task = TaskItem.Create(
-            Guid.NewGuid(),
-            Guid.NewGuid(),
-            "Implement login");
+        var taskRepository = new FakeTaskRepository();
+        var projectRepository = new FakeProjectRepository();
+        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository);
+        var project = await projectHandler.Handle(projectCommand);
+
+        var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
+        var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
+        var task = await createHandler.Handle(taskCommand);
 
         task.Start();
-        task.Complete();
 
+        var completeHandler = new CompleteTaskHandler(taskRepository);
         var command = new CompleteTaskCommand(task);
 
-        var handler = new CompleteTaskHandler();
+        await completeHandler.Handle(task.Id);
 
-        var act = () => handler.Handle(command);
+        var act = () => completeHandler.Handle(task.Id);
 
         await Assert.ThrowsAsync<InvalidOperationException>(act);
     }
