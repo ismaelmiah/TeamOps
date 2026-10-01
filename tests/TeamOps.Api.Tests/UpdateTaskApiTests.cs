@@ -62,4 +62,59 @@ public sealed class UpdateTaskApiTests(
         Assert.Equal("Updated title", savedTask.Title);
         Assert.Equal(TaskStatus.Pending, savedTask.Status);
     }
+
+    [Fact]
+    public async Task UpdateTask_WhenTaskDoesNotExist_ShouldReturnNotFound()
+    {
+        var taskId = Guid.NewGuid();
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/tasks/{taskId}",
+            new
+            {
+                Title = "Updated title",
+                TaskId = taskId
+            });
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task UpdateTask_WhenTitleIsEmpty_ShouldReturnBadRequest()
+    {
+        var tenantId = Guid.NewGuid();
+
+        var projectResponse = await _client.PostAsJsonAsync(
+            "/api/projects",
+            new
+            {
+                TenantId = tenantId,
+                Name = "Project Alpha"
+            });
+
+        var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
+
+        Assert.NotNull(project);
+
+        var createResponse = await _client.PostAsJsonAsync(
+            "/api/tasks",
+            new
+            {
+                ProjectId = project.Id,
+                Title = "Original title"
+            });
+
+        var task = await createResponse.Content.ReadFromJsonAsync<TaskResponse>();
+
+        Assert.NotNull(task);
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/tasks/{task.Id}",
+            new
+            {
+                Title = ""
+            });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }
