@@ -10,7 +10,8 @@ public sealed class TasksController(
     CreateTaskHandler createTaskHandler,
     StartTaskHandler startTaskHandler,
     HoldTaskHandler holdTaskHandler,
-    CompleteTaskHandler completeTaskHandler) : ControllerBase
+    CompleteTaskHandler completeTaskHandler,
+    GetTaskHandler getTaskHandler) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(CreateTaskCommand command)
@@ -91,5 +92,23 @@ public sealed class TasksController(
         }
 
         return NoContent();
+    }
+
+    [HttpGet("{taskId:guid}")]
+    public async Task<IActionResult> Get(Guid taskId)
+    {
+        var task = await getTaskHandler.Handle(taskId);
+
+        if (task is null)
+            return NotFound();
+
+        return Ok(new
+        {
+            task.Id,
+            task.ProjectId,
+            task.Title,
+            task.Status,
+            task.AssigneeId
+        });
     }
 }

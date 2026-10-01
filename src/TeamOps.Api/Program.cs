@@ -30,6 +30,7 @@ builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<StartTaskHandler>();
 builder.Services.AddScoped<HoldTaskHandler>();
 builder.Services.AddScoped<CompleteTaskHandler>();
+builder.Services.AddScoped<GetTaskHandler>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>
     options.UseNpgsql(
