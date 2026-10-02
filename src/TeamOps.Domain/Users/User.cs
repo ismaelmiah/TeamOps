@@ -14,9 +14,9 @@ public sealed class User
 
     public Guid TenantId { get; }
 
-    public string Email { get; }
+    public string Email { get; private set; }
 
-    public string Name { get; }
+    public string Name { get; private set; }
 
     public UserRole Role { get; private set; }
 
@@ -44,5 +44,24 @@ public sealed class User
         user.Role = role;
 
         return user;
+    }
+
+    public void Update(string email, string name, UserRole role)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email is required.", nameof(email));
+
+        if (email.Length > 200)
+            throw new ArgumentException("Email cannot exceed 200 characters.", nameof(email));
+
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("User name is required.", nameof(name));
+
+        if (name.Length > 100)
+            throw new ArgumentException("User name cannot exceed 100 characters.", nameof(name));
+
+        Email = email.Trim();
+        Name = name.Trim();
+        Role = role;
     }
 }

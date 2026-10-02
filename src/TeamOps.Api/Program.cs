@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TeamOps.Application.Common;
 using TeamOps.Application.Projects;
 using TeamOps.Application.Tasks;
 using TeamOps.Application.Users;
@@ -22,6 +23,7 @@ builder.Services.AddScoped<CompleteProjectHandler>();
 builder.Services.AddScoped<AddProjectMemberHandler>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<CreateUserHandler>();
+builder.Services.AddScoped<GetUserHandler>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 builder.Services.AddScoped<RemoveProjectMemberHandler>();
