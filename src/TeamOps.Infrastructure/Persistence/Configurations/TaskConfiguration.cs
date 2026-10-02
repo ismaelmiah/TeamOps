@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TeamOps.Domain.Projects;
 using TeamOps.Domain.Tasks;
 
 namespace TeamOps.Infrastructure.Persistence.Configurations;
@@ -21,5 +22,10 @@ public sealed class TaskConfiguration : IEntityTypeConfiguration<TaskItem>
         builder.Property(x => x.Status).IsRequired();
 
         builder.Property(x => x.AssigneeId);
+
+        builder.HasOne<Project>()
+                .WithMany()
+                .HasForeignKey(x => x.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
     }
 }

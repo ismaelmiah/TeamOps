@@ -21,7 +21,6 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
     public async Task DeleteProject_ShouldRemoveProject()
     {
         // create project
-
         var tenantId = Guid.NewGuid();
 
         var request = new
@@ -57,5 +56,89 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         var deletedProject = context.Projects.SingleOrDefault(x => x.Id == project.Id);
 
         Assert.Null(deletedProject);
+    }
+
+    [Fact]
+    public async Task DeleteProject_ShouldCascadeDeleteTasksAndMembers()
+    {
+        // Arrange
+        // Create project
+        var tenantId = Guid.NewGuid();
+
+        var projectResponse = await _client.PostAsJsonAsync(
+        "/api/projects",
+        new
+        {
+            TenantId = tenantId,
+            Name = "Project Alpha"
+        });
+
+        Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
+
+        var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
+
+        Assert.NotNull(project);
+
+        // Create task
+        var taskResponse = await _client.PostAsJsonAsync(
+            "/api/tasks",
+            new
+            {
+                ProjectId = project.Id,
+                Title = "Project task"
+            });
+
+        Assert.Equal(HttpStatusCode.Created, taskResponse.StatusCode);
+
+        var task = await taskResponse.Content.ReadFromJsonAsync<TaskResponse>();
+
+        Assert.NotNull(task);
+
+        // Create user
+        var userResponse = await _client.PostAsJsonAsync(
+            "/api/users",
+            new
+            {
+                TenantId = tenantId,
+                Email = $"user-{Guid.NewGuid()}@example.com",
+                Name = "Test User",
+                Role = UserRole.Member
+            });
+
+        Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
+
+        var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
+
+        Assert.NotNull(user);
+
+        // Add user to project.
+        var memberResponse = await _client.PostAsync(
+            $"/api/projects/{project.Id}/members/{user.Id}",
+            content: null);
+
+        Assert.Equal(HttpStatusCode.NoContent, memberResponse.StatusCode);
+
+        // Act
+        var deleteProject = await _client.DeleteAsync($"/api/projects/{project.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, deleteProject.StatusCode);
+
+        // Assert database state
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<TeamOpsDbContext>();
+
+        Assert.Null(await context.Projects.SingleOrDefaultAsync(x => x.Id == project.Id));
+
+        Assert.Null(await context.Tasks.SingleOrDefaultAsync(x => x.Id == task.Id));
+
+        Assert.Null(await context.ProjectMembers.SingleOrDefaultAsync(x => x.ProjectId == project.Id && x.UserId == user.Id));
+
+        // Act
+        // DELETE /api/projects/{projectId}
+
+        // Assert
+        // 204 NoContent
+        // project does not exist
+        // task does not exist
+        // project member does not exist
     }
 }

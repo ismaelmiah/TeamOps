@@ -34,12 +34,9 @@ public class CreateUserApiTests : IClassFixture<TeamOpsApiFactory>
             "/api/users",
             request);
 
-        Assert.Equal(
-            HttpStatusCode.Created,
-            response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-        var user = await response.Content
-            .ReadFromJsonAsync<UserResponse>();
+        var user = await response.Content.ReadFromJsonAsync<UserResponse>();
 
         Assert.NotNull(user);
         Assert.NotEqual(Guid.Empty, user.Id);
