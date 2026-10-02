@@ -184,7 +184,7 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
 
-        var deleteResponse = await _client.DeleteAsync($"/api/projects/{task.Id}/assignee");
+        var deleteResponse = await _client.DeleteAsync($"/api/tasks/{task.Id}/assignee");
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
@@ -195,5 +195,13 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
         var savedTask = await context.Tasks.SingleAsync(x => x.Id == task.Id);
 
         Assert.Null(savedTask.AssigneeId);
+    }
+
+    [Fact]
+    public async Task UnassignTask_WhenTaskDoesNotExist_ShouldReturnNotFound()
+    {
+        var response = await _client.DeleteAsync($"/api/tasks/{Guid.NewGuid()}/assignee");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

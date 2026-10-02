@@ -7,11 +7,12 @@ namespace TeamOps.Api.Controllers;
 [ApiController]
 [Route("api/tasks")]
 public sealed class TasksController(
-    CreateTaskHandler createTaskHandler,
-    StartTaskHandler startTaskHandler,
-    HoldTaskHandler holdTaskHandler,
-    CompleteTaskHandler completeTaskHandler,
     GetTaskHandler getTaskHandler,
+    HoldTaskHandler holdTaskHandler,
+    StartTaskHandler startTaskHandler,
+    CreateTaskHandler createTaskHandler,
+    UnassignTaskHandler unassignTaskHandler,
+    CompleteTaskHandler completeTaskHandler,
     UpdateTaskHandler updateTaskHandler) : ControllerBase
 {
     [HttpPost]
@@ -130,6 +131,21 @@ public sealed class TasksController(
         catch (ArgumentException)
         {
             return BadRequest();
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{taskId:guid}/assignee")]
+    public async Task<IActionResult> Unassign(Guid taskId)
+    {
+        try
+        {
+            await unassignTaskHandler.Handle(taskId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
         }
 
         return NoContent();
