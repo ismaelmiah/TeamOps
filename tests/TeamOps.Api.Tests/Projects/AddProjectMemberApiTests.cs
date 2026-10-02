@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TeamOps.Domain.Users;
 using TeamOps.Infrastructure.Persistence;
 
 namespace TeamOps.Api.Tests.Projects;
@@ -39,15 +40,18 @@ public class AddProjectMemberApiTests
         Assert.NotNull(project);
 
         // Create user in the same tenant.
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = tenantId,
-                Email = $"user-{Guid.NewGuid()}@example.com",
-                Name = "John Smith",
-                Role = 0
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Test User",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
 
@@ -98,17 +102,21 @@ public class AddProjectMemberApiTests
         Assert.NotNull(project);
 
         // Create user in Tenant B.
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = userTenantId,
-                Email = $"user-{Guid.NewGuid()}@example.com",
-                Name = "Jane Smith",
-                Role = 0
-            });
 
-        Assert.Equal(HttpStatusCode.Created,userResponse.StatusCode);
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", userTenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
 
         var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
 

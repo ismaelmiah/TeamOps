@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TeamOps.Domain.Users;
 using TeamOps.Infrastructure.Persistence;
 
 namespace TeamOps.Api.Tests.Users;
@@ -22,18 +23,18 @@ public class CreateUserApiTests : IClassFixture<TeamOpsApiFactory>
     {
         var tenantId = Guid.NewGuid();
 
-        var request = new
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        request.Content = JsonContent.Create(new
         {
-            TenantId = tenantId,
-            Email = "john@example.com",
-            Name = "John Smith",
-            Role = 0
-        };
+            email = "john@example.com",
+            name = "John Smith",
+            Role = UserRole.Member
+        });
 
-        var response = await _client.PostAsJsonAsync(
-            "/api/users",
-            request);
-
+        var response = await _client.SendAsync(request);
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var user = await response.Content.ReadFromJsonAsync<UserResponse>();
@@ -55,11 +56,4 @@ public class CreateUserApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Equal(user.Name, savedUser.Name);
         Assert.Equal(user.Role, savedUser.Role);
     }
-
-    private sealed record UserResponse(
-        Guid Id,
-        Guid TenantId,
-        string Email,
-        string Name,
-        UserRole Role);
 }

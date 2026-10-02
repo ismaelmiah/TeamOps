@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TeamOps.Domain.Users;
 using TeamOps.Infrastructure.Persistence;
 
 namespace TeamOps.Api.Tests.Projects;
@@ -43,22 +44,23 @@ public class RemoveProjectMemberApiTests
         Assert.NotNull(project);
 
         // Create user.
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = tenantId,
-                Email = $"user-{Guid.NewGuid()}@example.com",
-                Name = "John Smith",
-                Role = 0
-            });
+        
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
 
-        Assert.Equal(
-            HttpStatusCode.Created,
-            userResponse.StatusCode);
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
 
-        var user = await userResponse.Content
-            .ReadFromJsonAsync<UserResponse>();
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
+
+        var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
 
         Assert.NotNull(user);
 
@@ -114,15 +116,18 @@ public class RemoveProjectMemberApiTests
         Assert.NotNull(project);
 
         // Create user but do NOT add them to the project.
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = tenantId,
-                Email = $"user-{Guid.NewGuid()}@example.com",
-                Name = "Jane Smith",
-                Role = 0
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
 
@@ -158,15 +163,18 @@ public class RemoveProjectMemberApiTests
         Assert.NotNull(project);
 
         // Create user in Tenant B.
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = userTenantId,
-                Email = $"user-{Guid.NewGuid()}@example.com",
-                Name = "Jane Smith",
-                Role = 0
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", userTenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
 

@@ -1,3 +1,5 @@
+using TeamOps.Domain.Users;
+
 namespace TeamOps.Api.Tests;
 
 internal sealed record ProjectResponse(
@@ -11,7 +13,7 @@ internal sealed record UserResponse(
         Guid TenantId,
         string Email,
         string Name,
-        int Role);
+        UserRole Role);
 
 internal sealed record TaskResponse(
         Guid Id,

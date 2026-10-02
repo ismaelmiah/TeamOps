@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TeamOps.Domain.Users;
 using TeamOps.Infrastructure.Persistence;
 
 namespace TeamOps.Api.Tests.Tasks;
@@ -34,15 +35,18 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(project);
 
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = tenantId,
-                Email = "john@example.com",
-                Name = "John",
-                Role = 0
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
 
@@ -93,15 +97,18 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(project);
 
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = userTenantId,
-                Email = "other@example.com",
-                Name = "Other User",
-                Role = 0
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", userTenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
 
@@ -151,15 +158,18 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(project);
 
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = tenantId,
-                Email = "user@example.com",
-                Name = "New User",
-                Role = 0
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Jane Smith",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
 

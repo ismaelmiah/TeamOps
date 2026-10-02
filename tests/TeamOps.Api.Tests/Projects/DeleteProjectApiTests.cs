@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using TeamOps.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TeamOps.Domain.Users;
 
 namespace TeamOps.Api.Tests.Projects;
 
@@ -95,15 +96,18 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.NotNull(task);
 
         // Create user
-        var userResponse = await _client.PostAsJsonAsync(
-            "/api/users",
-            new
-            {
-                TenantId = tenantId,
-                Email = $"user-{Guid.NewGuid()}@example.com",
-                Name = "Test User",
-                Role = UserRole.Member
-            });
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
+
+        request.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        request.Content = JsonContent.Create(new
+        {
+            email = "user@example.com",
+            name = "Test User",
+            Role = UserRole.Member
+        });
+
+        var userResponse = await _client.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.Created, userResponse.StatusCode);
 
