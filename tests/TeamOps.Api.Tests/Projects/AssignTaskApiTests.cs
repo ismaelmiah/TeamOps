@@ -23,13 +23,18 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
     {
         var tenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+
+        projectResponse.EnsureSuccessStatusCode();
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
@@ -85,13 +90,16 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
         var projectTenantId = Guid.NewGuid();
         var userTenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = projectTenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", projectTenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
@@ -146,14 +154,17 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
     {
         var tenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
+        
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
         Assert.NotNull(project);

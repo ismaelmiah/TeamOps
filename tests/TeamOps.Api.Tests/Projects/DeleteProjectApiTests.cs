@@ -24,14 +24,16 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         // create project
         var tenantId = Guid.NewGuid();
 
-        var request = new
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
         {
-            TenantId = tenantId,
             Name = "Project Alpha"
-        };
+        });
 
-        var response = await _client.PostAsJsonAsync("/api/projects", request);
-
+        var response = await _client.SendAsync(createRequest);
+        response.EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var project = await response.Content.ReadFromJsonAsync<ProjectResponse>();
@@ -66,13 +68,16 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         // Create project
         var tenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-        "/api/projects",
-        new
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
         {
-            TenantId = tenantId,
             Name = "Project Alpha"
         });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
 

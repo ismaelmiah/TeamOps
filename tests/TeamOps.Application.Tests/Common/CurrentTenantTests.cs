@@ -14,7 +14,7 @@ public sealed class CurrentTenantTests
         Assert.Equal(tenantId, currentTenant.TenantId);
     }
 
-    private sealed class TestCurrentTenant(Guid tenantId) : ICurrentTenant
+    internal sealed class TestCurrentTenant(Guid tenantId) : ICurrentTenant
     {
         public Guid TenantId => tenantId;
     }

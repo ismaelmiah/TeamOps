@@ -1,6 +1,7 @@
 using TeamOps.Application.Projects;
 using TeamOps.Application.Tasks;
 using TeamOps.Application.Tests.Projects;
+using static TeamOps.Application.Tests.Common.CurrentTenantTests;
 using static TeamOps.Application.Tests.Tasks.CreateTaskTests;
 using TaskStatus = TeamOps.Domain.Tasks.TaskStatus;
 
@@ -13,8 +14,9 @@ public class CompleteTaskTests
     {
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
-        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
-        var projectHandler = new CreateProjectHandler(projectRepository);
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var projectCommand = new CreateProjectCommand("Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
         var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
@@ -35,8 +37,9 @@ public class CompleteTaskTests
     {
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
-        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
-        var projectHandler = new CreateProjectHandler(projectRepository);
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var projectCommand = new CreateProjectCommand("Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
         var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
@@ -55,8 +58,9 @@ public class CompleteTaskTests
     {
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
-        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
-        var projectHandler = new CreateProjectHandler(projectRepository);
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var projectCommand = new CreateProjectCommand("Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
         var createHandler = new CreateTaskHandler(taskRepository, projectRepository);

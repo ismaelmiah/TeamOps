@@ -23,13 +23,16 @@ public class CompleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
     {
         var tenantId = Guid.NewGuid();
 
-        var createRequest = new
-        {
-            TenantId = tenantId,
-            Name = "Project Alpha"
-        };
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
-        var createResponse = await _client.PostAsJsonAsync("/api/projects", createRequest);
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var createResponse = await _client.SendAsync(createRequest);
+        createResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
 

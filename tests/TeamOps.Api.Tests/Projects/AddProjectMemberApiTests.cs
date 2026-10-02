@@ -25,13 +25,16 @@ public class AddProjectMemberApiTests
         var tenantId = Guid.NewGuid();
 
         // Create project.
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
 
@@ -87,14 +90,16 @@ public class AddProjectMemberApiTests
         var userTenantId = Guid.NewGuid();
 
         // Create project in Tenant A.
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = projectTenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
+        createRequest.Headers.Add("X-Test-Tenant", projectTenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();

@@ -1,5 +1,6 @@
 using TeamOps.Application.Projects;
 using TeamOps.Domain.Projects;
+using static TeamOps.Application.Tests.Common.CurrentTenantTests;
 
 namespace TeamOps.Application.Tests.Projects;
 
@@ -10,9 +11,10 @@ public partial class CreateProjectTests
     public async Task Execute_ShouldCreateProject()
     {
         var tenantId = Guid.NewGuid();
-        var command = new CreateProjectCommand(tenantId, "Website");
+        var currentTenant = new TestCurrentTenant(tenantId);
+        var command = new CreateProjectCommand("Website");
         var repository = new FakeProjectRepository();
-        var handler = new CreateProjectHandler(repository);
+        var handler = new CreateProjectHandler(repository, currentTenant);
 
         var project = await handler.Handle(command);
 
@@ -25,9 +27,10 @@ public partial class CreateProjectTests
     [Fact]
     public async Task Execute_ShouldRejectEmptyTenantId()
     {
-        var command = new CreateProjectCommand(Guid.Empty, "Website");
+        var currentTenant = new TestCurrentTenant(Guid.Empty);
+        var command = new CreateProjectCommand("Website");
         var repository = new FakeProjectRepository();
-        var handler = new CreateProjectHandler(repository);
+        var handler = new CreateProjectHandler(repository, currentTenant);
 
         var act = () => handler.Handle(command);
 
@@ -37,12 +40,33 @@ public partial class CreateProjectTests
     [Fact]
     public async Task Execute_ShouldRejectEmptyProjectName()
     {
-        var command = new CreateProjectCommand(Guid.NewGuid(), "");
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var command = new CreateProjectCommand("");
         var repository = new FakeProjectRepository();
-        var handler = new CreateProjectHandler(repository);
+        var handler = new CreateProjectHandler(repository, currentTenant);
 
         var act = () => handler.Handle(command);
 
         await Assert.ThrowsAsync<ArgumentException>(act);
+    }
+
+    [Fact]
+    public async Task Handle_uses_current_tenant()
+    {
+        var tenantId = Guid.NewGuid();
+
+        var repository = new FakeProjectRepository();
+
+        var currentTenant = new TestCurrentTenant(tenantId);
+
+        var handler = new CreateProjectHandler(
+            repository,
+            currentTenant);
+
+        var command = new CreateProjectCommand("Test Project");
+
+        var project = await handler.Handle(command);
+
+        Assert.Equal(tenantId, project.TenantId);
     }
 }

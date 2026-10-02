@@ -2,6 +2,7 @@ using TeamOps.Application.Projects;
 using TeamOps.Application.Tasks;
 using TeamOps.Application.Tests.Projects;
 using TeamOps.Domain.Tasks;
+using static TeamOps.Application.Tests.Common.CurrentTenantTests;
 using TaskStatus = TeamOps.Domain.Tasks.TaskStatus;
 
 namespace TeamOps.Application.Tests.Tasks;
@@ -40,9 +41,9 @@ public class CreateTaskTests
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
         var handler = new CreateTaskHandler(taskRepository, projectRepository);
-
-        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
-        var projectHandler = new CreateProjectHandler(projectRepository);
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var projectCommand = new CreateProjectCommand("Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
         var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
@@ -61,9 +62,9 @@ public class CreateTaskTests
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
         var handler = new CreateTaskHandler(taskRepository, projectRepository);
-
-        var projectCommand = new CreateProjectCommand(Guid.NewGuid(), "Authentication Service");
-        var projectHandler = new CreateProjectHandler(projectRepository);
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var projectCommand = new CreateProjectCommand("Authentication Service");
+        var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
         var taskCommand = new CreateTaskCommand(project.Id, "");

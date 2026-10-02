@@ -21,14 +21,16 @@ public class TaskLifecycleApiTests : IClassFixture<TeamOpsApiFactory>
     [Fact]
     public async Task StartTask_ShouldMoveTaskToInProgress()
     {
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = Guid.NewGuid(),
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
+        createRequest.Headers.Add("X-Test-Tenant", Guid.NewGuid().ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
         Assert.NotNull(project);
@@ -100,14 +102,16 @@ public class TaskLifecycleApiTests : IClassFixture<TeamOpsApiFactory>
 
     private async Task<TaskResponse> CreateTaskAsync()
     {
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = Guid.NewGuid(),
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
+        createRequest.Headers.Add("X-Test-Tenant", Guid.NewGuid().ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
         Assert.NotNull(project);

@@ -26,25 +26,25 @@ public class RemoveProjectMemberApiTests
         var tenantId = Guid.NewGuid();
 
         // Create project.
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
-        Assert.Equal(
-            HttpStatusCode.Created,
-            projectResponse.StatusCode);
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
 
-        var project = await projectResponse.Content
-            .ReadFromJsonAsync<ProjectResponse>();
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
+
+        Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
+
+        var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
         Assert.NotNull(project);
 
         // Create user.
-        
+
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
 
         request.Headers.Add("X-Test-Tenant", tenantId.ToString());
@@ -69,23 +69,18 @@ public class RemoveProjectMemberApiTests
             $"/api/projects/{project.Id}/members/{user.Id}",
             content: null);
 
-        Assert.Equal(
-            HttpStatusCode.NoContent,
-            addResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, addResponse.StatusCode);
 
         // Remove user from project.
         var removeResponse = await _client.DeleteAsync(
             $"/api/projects/{project.Id}/members/{user.Id}");
 
-        Assert.Equal(
-            HttpStatusCode.NoContent,
-            removeResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, removeResponse.StatusCode);
 
         // Verify membership was removed from PostgreSQL.
         using var scope = _factory.Services.CreateScope();
 
-        var context = scope.ServiceProvider
-            .GetRequiredService<TeamOpsDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<TeamOpsDbContext>();
 
         var membership = await context.ProjectMembers
             .SingleOrDefaultAsync(x =>
@@ -101,14 +96,16 @@ public class RemoveProjectMemberApiTests
         var tenantId = Guid.NewGuid();
 
         // Create project.
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
@@ -148,14 +145,16 @@ public class RemoveProjectMemberApiTests
         var userTenantId = Guid.NewGuid();
 
         // Create project in Tenant A.
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = projectTenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
+        createRequest.Headers.Add("X-Test-Tenant", projectTenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();

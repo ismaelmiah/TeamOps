@@ -17,13 +17,16 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
     {
         var tenantId = Guid.NewGuid();
 
-        var createRequest = new
-        {
-            TenantId = tenantId,
-            Name = "Project Alpha"
-        };
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
-        var createResponse = await _client.PostAsJsonAsync("/api/projects", createRequest);
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var createResponse = await _client.SendAsync(createRequest);
+        createResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
 
@@ -82,14 +85,17 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
 
     private async Task CreateProject(Guid tenantId, string name)
     {
-        var response = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = name
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = name
+        });
+
+        var createResponse = await _client.SendAsync(createRequest);
+        createResponse.EnsureSuccessStatusCode();
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
     }
 }

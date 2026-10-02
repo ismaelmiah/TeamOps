@@ -19,13 +19,17 @@ public sealed class UpdateTaskApiTests(
     {
         var tenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
@@ -84,13 +88,17 @@ public sealed class UpdateTaskApiTests(
     {
         var tenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
+
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 

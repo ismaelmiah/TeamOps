@@ -24,13 +24,16 @@ public class CreateTaskApiTests : IClassFixture<TeamOpsApiFactory>
         // Create project first.
         var tenantId = Guid.NewGuid();
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, projectResponse.StatusCode);
 
@@ -70,14 +73,16 @@ public class CreateTaskApiTests : IClassFixture<TeamOpsApiFactory>
     public async Task CreateTask_ShouldStartAsPending()
     {
         var tenantId = Guid.NewGuid();
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
 
-        var projectResponse = await _client.PostAsJsonAsync(
-            "/api/projects",
-            new
-            {
-                TenantId = tenantId,
-                Name = "Project Alpha"
-            });
+        createRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        createRequest.Content = JsonContent.Create(new
+        {
+            Name = "Project Alpha"
+        });
+
+        var projectResponse = await _client.SendAsync(createRequest);
+        projectResponse.EnsureSuccessStatusCode();
 
         var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
