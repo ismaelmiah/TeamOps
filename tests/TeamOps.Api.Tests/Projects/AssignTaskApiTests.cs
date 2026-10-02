@@ -89,8 +89,7 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
                 Name = "Project Alpha"
             });
 
-        var project = await projectResponse.Content
-            .ReadFromJsonAsync<ProjectResponse>();
+        var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
         Assert.NotNull(project);
 
@@ -104,8 +103,7 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
                 Role = 0
             });
 
-        var user = await userResponse.Content
-            .ReadFromJsonAsync<UserResponse>();
+        var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
 
         Assert.NotNull(user);
 
@@ -117,8 +115,7 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
                 Title = "Implement authentication"
             });
 
-        var task = await taskResponse.Content
-            .ReadFromJsonAsync<TaskResponse>();
+        var task = await taskResponse.Content.ReadFromJsonAsync<TaskResponse>();
 
         Assert.NotNull(task);
 
@@ -126,19 +123,77 @@ public class AssignTaskApiTests : IClassFixture<TeamOpsApiFactory>
             $"/api/projects/{project.Id}/tasks/{task.Id}/assignee/{user.Id}",
             null);
 
-        Assert.Equal(
-            HttpStatusCode.BadRequest,
-            response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         using var scope = _factory.Services.CreateScope();
 
-        var context = scope.ServiceProvider
-            .GetRequiredService<TeamOpsDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<TeamOpsDbContext>();
 
-        var savedTask = await context.Tasks
-            .SingleAsync(x => x.Id == task.Id);
+        var savedTask = await context.Tasks.SingleAsync(x => x.Id == task.Id);
 
         Assert.Null(savedTask.AssigneeId);
     }
 
+    [Fact]
+    public async Task UnassignTask_ShouldRemoveAssignee()
+    {
+        var tenantId = Guid.NewGuid();
+
+        var projectResponse = await _client.PostAsJsonAsync(
+            "/api/projects",
+            new
+            {
+                TenantId = tenantId,
+                Name = "Project Alpha"
+            });
+
+        var project = await projectResponse.Content.ReadFromJsonAsync<ProjectResponse>();
+
+        Assert.NotNull(project);
+
+        var userResponse = await _client.PostAsJsonAsync(
+            "/api/users",
+            new
+            {
+                TenantId = tenantId,
+                Email = "user@example.com",
+                Name = "New User",
+                Role = 0
+            });
+
+        var user = await userResponse.Content.ReadFromJsonAsync<UserResponse>();
+
+        Assert.NotNull(user);
+
+        var taskResponse = await _client.PostAsJsonAsync(
+            "/api/tasks",
+            new
+            {
+                ProjectId = project.Id,
+                Title = "Implement authentication"
+            });
+
+        var task = await taskResponse.Content.ReadFromJsonAsync<TaskResponse>();
+
+        Assert.NotNull(task);
+
+        var response = await _client.PostAsync(
+            $"/api/projects/{project.Id}/tasks/{task.Id}/assignee/{user.Id}",
+            null);
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+
+        var deleteResponse = await _client.DeleteAsync($"/api/projects/{task.Id}/assignee");
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+
+        using var scope = _factory.Services.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<TeamOpsDbContext>();
+
+        var savedTask = await context.Tasks.SingleAsync(x => x.Id == task.Id);
+
+        Assert.Null(savedTask.AssigneeId);
+    }
 }

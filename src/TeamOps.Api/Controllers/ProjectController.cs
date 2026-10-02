@@ -8,6 +8,7 @@ namespace TeamOps.Api.Controllers;
 [ApiController]
 [Route("api/projects")]
 public sealed class ProjectController(
+    UnassignTaskHandler unassignTaskHandler,
     AssignTaskHandler assignTaskHandler,
     GetProjectHandler getProjectHandler,
     GetProjectsHandler getProjectsHandler,
@@ -136,6 +137,21 @@ public sealed class ProjectController(
         }
 
         await taskRepository.UpdateAsync(task);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{taskId:guid}/assignee")]
+    public async Task<IActionResult> Unassign(Guid taskId)
+    {
+        try
+        {
+            await unassignTaskHandler.Handle(taskId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
 
         return NoContent();
     }
