@@ -31,4 +31,9 @@ internal sealed class FakeProjectRepository : IProjectRepository
         Projects.Remove(p);
         Projects.Add(project);
     }
+
+    public async Task DeleteAsync(Project project)
+    {
+        Projects.Remove(project);
+    }
 }

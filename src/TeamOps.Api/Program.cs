@@ -15,6 +15,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<CreateProjectHandler>();
+builder.Services.AddScoped<DeleteProjectHandler>();
 builder.Services.AddScoped<GetProjectHandler>();
 builder.Services.AddScoped<GetProjectsHandler>();
 builder.Services.AddScoped<CompleteProjectHandler>();

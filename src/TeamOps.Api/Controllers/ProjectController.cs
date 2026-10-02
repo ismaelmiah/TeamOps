@@ -12,6 +12,7 @@ public sealed class ProjectController(
     GetProjectHandler getProjectHandler,
     GetProjectsHandler getProjectsHandler,
     CreateProjectHandler createProjectHandler,
+    DeleteProjectHandler deleteProjectHandler,
     CompleteProjectHandler completeProjectHandler,
     AddProjectMemberHandler addProjectMemberHandler,
     RemoveProjectMemberHandler removeProjectMemberHandler,
@@ -140,4 +141,18 @@ public sealed class ProjectController(
         return NoContent();
     }
 
+    [HttpDelete("{projectId:guid}")]
+    public async Task<IActionResult> Delete(Guid projectId)
+    {
+        try
+        {
+            await deleteProjectHandler.Handle(projectId);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
 }
