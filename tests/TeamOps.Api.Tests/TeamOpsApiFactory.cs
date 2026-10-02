@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using TeamOps.Api.Tests.Authentication;
 using TeamOps.Infrastructure.Persistence;
 
 namespace TeamOps.Api.Tests;
@@ -14,6 +16,15 @@ public sealed class TeamOpsApiFactory : WebApplicationFactory<Program>
     {
         builder.ConfigureServices(services =>
         {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>(
+                "Test",
+                _ => { });
+
             var descriptor = services.SingleOrDefault(x => x.ServiceType == typeof(DbContextOptions<TeamOpsDbContext>));
 
             if (descriptor is not null)

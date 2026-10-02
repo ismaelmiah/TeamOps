@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TeamOps.Api.Tenancy;
 using TeamOps.Application.Common;
 using TeamOps.Application.Projects;
 using TeamOps.Application.Tasks;
@@ -23,7 +24,10 @@ builder.Services.AddScoped<CompleteProjectHandler>();
 builder.Services.AddScoped<AddProjectMemberHandler>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<CreateUserHandler>();
+builder.Services.AddScoped<UpdateUserHandler>();
+builder.Services.AddScoped<DeleteUserHandler>();
 builder.Services.AddScoped<GetUserHandler>();
+builder.Services.AddScoped<GetUsersHandler>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
 builder.Services.AddScoped<RemoveProjectMemberHandler>();
@@ -36,6 +40,10 @@ builder.Services.AddScoped<CompleteTaskHandler>();
 builder.Services.AddScoped<GetTaskHandler>();
 builder.Services.AddScoped<UpdateTaskHandler>();
 builder.Services.AddScoped<UnassignTaskHandler>();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<ICurrentTenant, HttpCurrentTenant>();
 
 builder.Services.AddDbContext<TeamOpsDbContext>(options =>
     options.UseNpgsql(
