@@ -91,13 +91,17 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.NotNull(project);
 
         // Create task
-        var taskResponse = await _client.PostAsJsonAsync(
-            "/api/tasks",
-            new
-            {
-                ProjectId = project.Id,
-                Title = "Project task"
-            });
+        using var taskRequest = new HttpRequestMessage(HttpMethod.Post, "/api/tasks");
+
+        taskRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+        taskRequest.Content = JsonContent.Create(new
+        {
+            ProjectId = project.Id,
+            Title = "Project task"
+        });
+
+        var taskResponse = await _client.SendAsync(taskRequest);
+        taskResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, taskResponse.StatusCode);
 
@@ -126,9 +130,11 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.NotNull(user);
 
         // Add user to project.
-        var memberResponse = await _client.PostAsync(
-            $"/api/projects/{project.Id}/members/{user.Id}",
-            content: null);
+        using var memberRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/projects/{project.Id}/members/{user.Id}");
+        memberRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+
+        var memberResponse = await _client.SendAsync(memberRequest);
+        memberResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.NoContent, memberResponse.StatusCode);
 

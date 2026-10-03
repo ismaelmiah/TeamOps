@@ -34,7 +34,9 @@ public sealed class GetUsersApiTests(TeamOpsApiFactory factory) : IClassFixture<
         Assert.NotNull(createdUser);
 
         // Act
-        var response = await _client.GetAsync($"/api/users/{createdUser.Id}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{createdUser.Id}");
+        getRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        var response = await _client.SendAsync(getRequest);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -52,7 +54,9 @@ public sealed class GetUsersApiTests(TeamOpsApiFactory factory) : IClassFixture<
     [Fact]
     public async Task GetUser_WhenUserDoesNotExist_ShouldReturnNotFound()
     {
-        var response = await _client.GetAsync($"/api/users/{Guid.NewGuid()}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{Guid.NewGuid()}");
+        getRequest.Headers.Add("X-Test-Tenant", Guid.NewGuid().ToString());
+        var response = await _client.SendAsync(getRequest);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -94,7 +98,10 @@ public sealed class GetUsersApiTests(TeamOpsApiFactory factory) : IClassFixture<
         Assert.Equal(HttpStatusCode.Created, userBResponse.StatusCode);
 
         // Act
-        var response = await _client.GetAsync($"/api/users?tenantId={tenantA}");
+
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users");
+        getRequest.Headers.Add("X-Test-Tenant", tenantA.ToString());
+        var response = await _client.SendAsync(getRequest);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -115,7 +122,9 @@ public sealed class GetUsersApiTests(TeamOpsApiFactory factory) : IClassFixture<
     {
         var tenantId = Guid.NewGuid();
 
-        var response = await _client.GetAsync($"/api/users?tenantId={tenantId}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users");
+        getRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        var response = await _client.SendAsync(getRequest);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 

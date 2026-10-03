@@ -19,7 +19,7 @@ public class CompleteTaskTests
         var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
-        var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
+        var createHandler = new CreateTaskHandler(taskRepository, projectRepository, currentTenant);
         var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
         var task = await createHandler.Handle(taskCommand);
 
@@ -42,7 +42,7 @@ public class CompleteTaskTests
         var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
 
-        var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
+        var createHandler = new CreateTaskHandler(taskRepository, projectRepository, currentTenant);
         var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
         var task = await createHandler.Handle(taskCommand);
 
@@ -62,8 +62,7 @@ public class CompleteTaskTests
         var projectCommand = new CreateProjectCommand("Authentication Service");
         var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
-
-        var createHandler = new CreateTaskHandler(taskRepository, projectRepository);
+        var createHandler = new CreateTaskHandler(taskRepository, projectRepository, currentTenant);
         var taskCommand = new CreateTaskCommand(project.Id, "Implement login");
         var task = await createHandler.Handle(taskCommand);
 

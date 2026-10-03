@@ -77,7 +77,11 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
         await CreateProject(tenantA, "Project A2");
         await CreateProject(tenantB, "Project B1");
 
-        var response = await _client.GetAsync($"/api/projects?tenantId={tenantA}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/projects");
+
+        getRequest.Headers.Add("X-Test-Tenant", tenantA.ToString());
+        var response = await _client.SendAsync(getRequest);
+        response.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 

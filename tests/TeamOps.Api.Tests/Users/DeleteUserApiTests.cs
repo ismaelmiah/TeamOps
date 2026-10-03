@@ -14,7 +14,6 @@ public sealed class DeleteUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
         // Arrange
         var tenantId = Guid.NewGuid();
 
-        
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
 
         request.Headers.Add("X-Test-Tenant", tenantId.ToString());
@@ -34,12 +33,16 @@ public sealed class DeleteUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
         Assert.NotNull(user);
 
         // Act
-        var response = await _client.DeleteAsync($"/api/users/{user.Id}");
+        using var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/{user.Id}");
+        deleteRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        var response = await _client.SendAsync(deleteRequest);
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
-        var getResponse = await _client.GetAsync($"/api/users/{user.Id}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{user.Id}");
+        getRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        var getResponse = await _client.SendAsync(getRequest);
 
         Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
     }
@@ -47,7 +50,9 @@ public sealed class DeleteUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
     [Fact]
     public async Task DeleteUser_WhenUserDoesNotExist_ShouldReturnNotFound()
     {
-        var response = await _client.DeleteAsync($"/api/users/{Guid.NewGuid()}");
+        using var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/users/{Guid.NewGuid()}");
+        deleteRequest.Headers.Add("X-Test-Tenant", Guid.NewGuid().ToString());
+        var response = await _client.SendAsync(deleteRequest);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }

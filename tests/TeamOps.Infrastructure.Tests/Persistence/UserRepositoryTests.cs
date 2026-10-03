@@ -12,8 +12,7 @@ public class UserRepositoryTests
     [Fact]
     public async Task AddAsync_ShouldPersistUser()
     {
-        var options = new DbContextOptionsBuilder<TeamOpsDbContext>()
-            .UseNpgsql(connectionString).Options;
+        var options = new DbContextOptionsBuilder<TeamOpsDbContext>().UseNpgsql(connectionString).Options;
 
         await using var context = new TeamOpsDbContext(options);
 
@@ -50,9 +49,10 @@ public class UserRepositoryTests
 
         await context.Database.MigrateAsync();
 
+        var tenantId = Guid.NewGuid();
         var user = User.Create(
             Guid.NewGuid(),
-            Guid.NewGuid(),
+            tenantId,
             $"user-{Guid.NewGuid()}@example.com",
             "Jane Smith");
 
@@ -61,7 +61,7 @@ public class UserRepositoryTests
 
         var repository = new UserRepository(context);
 
-        var result = await repository.GetByIdAsync(user.Id);
+        var result = await repository.GetByIdAsync(user.Id, tenantId);
 
         Assert.NotNull(result);
         Assert.Equal(user.Id, result.Id);
@@ -83,7 +83,7 @@ public class UserRepositoryTests
 
         var repository = new UserRepository(context);
 
-        var result = await repository.GetByIdAsync(Guid.NewGuid());
+        var result = await repository.GetByIdAsync(Guid.NewGuid(), Guid.NewGuid());
 
         Assert.Null(result);
     }

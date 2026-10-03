@@ -40,7 +40,11 @@ public class CompleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(createdProject);
 
-        var response = await _client.PostAsync($"/api/projects/{createdProject.Id}/complete", content: null);
+        using var projectRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/projects/{createdProject.Id}/complete");
+
+        projectRequest.Headers.Add("X-Test-Tenant", createdProject.TenantId.ToString());
+        var response = await _client.SendAsync(projectRequest);
+        response.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 

@@ -33,19 +33,24 @@ public sealed class UpdateUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
         Assert.NotNull(user);
 
         // Act
-        var response = await _client.PutAsJsonAsync(
-            $"/api/users/{user.Id}",
-            new
-            {
-                Email = "updated@example.com",
-                Name = "Updated Name",
-                Role = UserRole.Admin
-            });
+        using var putRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{user.Id}");
+        putRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        putRequest.Content = JsonContent.Create(new
+        {
+            Email = "updated@example.com",
+            Name = "Updated Name",
+            Role = UserRole.Admin
+        });
+
+        var response = await _client.SendAsync(putRequest);
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         // Assert
-        var getResponse = await _client.GetAsync($"/api/users/{user.Id}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/users/{user.Id}");
+        getRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        var getResponse = await _client.SendAsync(getRequest);
 
         Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
 
@@ -62,14 +67,16 @@ public sealed class UpdateUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
     [Fact]
     public async Task UpdateUser_WhenUserDoesNotExist_ShouldReturnNotFound()
     {
-        var response = await _client.PutAsJsonAsync(
-            $"/api/users/{Guid.NewGuid()}",
-            new
-            {
-                Email = "updated@example.com",
-                Name = "Updated Name",
-                Role = UserRole.Admin
-            });
+        using var putRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{Guid.NewGuid()}");
+        putRequest.Headers.Add("X-Test-Tenant", Guid.NewGuid().ToString());
+        putRequest.Content = JsonContent.Create(new
+        {
+            Email = "updated@example.com",
+            Name = "Updated Name",
+            Role = UserRole.Admin
+        });
+
+        var response = await _client.SendAsync(putRequest);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -78,7 +85,7 @@ public sealed class UpdateUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
     public async Task UpdateUser_WhenEmailIsEmpty_ShouldReturnBadRequest()
     {
         var tenantId = Guid.NewGuid();
-        
+
         using var request = new HttpRequestMessage(HttpMethod.Post, "/api/users");
         request.Headers.Add("X-Test-Tenant", tenantId.ToString());
 
@@ -94,14 +101,16 @@ public sealed class UpdateUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
 
         Assert.NotNull(user);
 
-        var response = await _client.PutAsJsonAsync(
-            $"/api/users/{user.Id}",
-            new
-            {
-                Email = "",
-                Name = "Updated Name",
-                Role = UserRole.Member
-            });
+        using var putRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{user.Id}");
+        putRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        putRequest.Content = JsonContent.Create(new
+        {
+            Email = "",
+            Name = "Updated Name",
+            Role = UserRole.Member
+        });
+
+        var response = await _client.SendAsync(putRequest);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -126,14 +135,16 @@ public sealed class UpdateUserApiTests(TeamOpsApiFactory factory) : IClassFixtur
 
         Assert.NotNull(user);
 
-        var response = await _client.PutAsJsonAsync(
-            $"/api/users/{user.Id}",
-            new
-            {
-                Email = "updated@example.com",
-                Name = "",
-                Role = UserRole.Member
-            });
+        using var putRequest = new HttpRequestMessage(HttpMethod.Put, $"/api/users/{user.Id}");
+        putRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+        putRequest.Content = JsonContent.Create(new
+        {
+            Email = "updated@example.com",
+            Name = "",
+            Role = UserRole.Member
+        });
+
+        var response = await _client.SendAsync(putRequest);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }

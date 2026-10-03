@@ -40,8 +40,8 @@ public class CreateTaskTests
     {
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
-        var handler = new CreateTaskHandler(taskRepository, projectRepository);
         var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var handler = new CreateTaskHandler(taskRepository, projectRepository, currentTenant);
         var projectCommand = new CreateProjectCommand("Authentication Service");
         var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
@@ -61,8 +61,8 @@ public class CreateTaskTests
     {
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
-        var handler = new CreateTaskHandler(taskRepository, projectRepository);
         var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var handler = new CreateTaskHandler(taskRepository, projectRepository, currentTenant);
         var projectCommand = new CreateProjectCommand("Authentication Service");
         var projectHandler = new CreateProjectHandler(projectRepository, currentTenant);
         var project = await projectHandler.Handle(projectCommand);
@@ -80,7 +80,8 @@ public class CreateTaskTests
         var command = new CreateTaskCommand(Guid.Empty, "Implement login");
         var taskRepository = new FakeTaskRepository();
         var projectRepository = new FakeProjectRepository();
-        var handler = new CreateTaskHandler(taskRepository, projectRepository);
+        var currentTenant = new TestCurrentTenant(Guid.NewGuid());
+        var handler = new CreateTaskHandler(taskRepository, projectRepository, currentTenant);
 
         var act = () => handler.Handle(command);
 

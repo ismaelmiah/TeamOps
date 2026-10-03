@@ -42,14 +42,17 @@ public class CreateTaskApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.NotNull(project);
 
         // Create task.
-        var response = await _client.PostAsJsonAsync(
-            "/api/tasks",
-            new
-            {
+        using var taskRequest = new HttpRequestMessage(HttpMethod.Post, "/api/tasks");
+
+        taskRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+        taskRequest.Content = JsonContent.Create(new
+        {
                 ProjectId = project.Id,
                 Title = "Implement authentication"
-            });
+        });
 
+        var response = await _client.SendAsync(taskRequest);
+        response.EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var task = await response.Content.ReadFromJsonAsync<TaskResponse>();
@@ -88,13 +91,17 @@ public class CreateTaskApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(project);
 
-        var response = await _client.PostAsJsonAsync(
-            "/api/tasks",
-            new
-            {
+        using var taskRequest = new HttpRequestMessage(HttpMethod.Post, "/api/tasks");
+
+        taskRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+        taskRequest.Content = JsonContent.Create(new
+        {
                 ProjectId = project.Id,
                 Title = "Implement authentication"
-            });
+        });
+
+        var response = await _client.SendAsync(taskRequest);
+        response.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 

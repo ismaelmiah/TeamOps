@@ -65,9 +65,11 @@ public class RemoveProjectMemberApiTests
         Assert.NotNull(user);
 
         // Add user to project.
-        var addResponse = await _client.PostAsync(
-            $"/api/projects/{project.Id}/members/{user.Id}",
-            content: null);
+        using var addRequest = new HttpRequestMessage(HttpMethod.Post, $"/api/projects/{project.Id}/members/{user.Id}");
+
+        addRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+        var addResponse = await _client.SendAsync(addRequest);
+        addResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.NoContent, addResponse.StatusCode);
 

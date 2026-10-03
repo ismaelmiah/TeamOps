@@ -35,13 +35,17 @@ public class TaskLifecycleApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(project);
 
-        var taskResponse = await _client.PostAsJsonAsync(
-            "/api/tasks",
-            new
-            {
+        using var taskRequest = new HttpRequestMessage(HttpMethod.Post, "/api/tasks");
+
+        taskRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+        taskRequest.Content = JsonContent.Create(new
+        {
                 ProjectId = project.Id,
                 Title = "Implement authentication"
-            });
+        });
+
+        var taskResponse = await _client.SendAsync(taskRequest);
+        taskResponse.EnsureSuccessStatusCode();
 
         var task = await taskResponse.Content.ReadFromJsonAsync<TaskResponse>();
 
@@ -116,13 +120,17 @@ public class TaskLifecycleApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(project);
 
-        var taskResponse = await _client.PostAsJsonAsync(
-            "/api/tasks",
-            new
-            {
-                ProjectId = project.Id,
-                Title = "Test task"
-            });
+        using var taskRequest = new HttpRequestMessage(HttpMethod.Post, "/api/tasks");
+
+        taskRequest.Headers.Add("X-Test-Tenant", project.TenantId.ToString());
+        taskRequest.Content = JsonContent.Create(new
+        {
+            ProjectId = project.Id,
+            Title = "Test task"
+        });
+
+        var taskResponse = await _client.SendAsync(taskRequest);
+        taskResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, taskResponse.StatusCode);
 
