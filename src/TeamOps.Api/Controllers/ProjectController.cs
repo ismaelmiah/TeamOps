@@ -16,9 +16,8 @@ public sealed class ProjectController(
     CompleteProjectHandler completeProjectHandler,
     AddProjectMemberHandler addProjectMemberHandler,
     RemoveProjectMemberHandler removeProjectMemberHandler,
-    ITaskRepository taskRepository,
-    IUserRepository userRepository,
-    IProjectRepository projectRepository
+    GetUserHandler getUserHandler,
+    ITaskRepository taskRepository
     ) : ControllerBase
 {
     [HttpPost]
@@ -53,9 +52,9 @@ public sealed class ProjectController(
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetProjects(Guid tenantId)
+    public async Task<IActionResult> GetProjects()
     {
-        var projects = await getProjectsHandler.Handle(tenantId);
+        var projects = await getProjectsHandler.Handle();
 
         return Ok(projects.Select(project => new
         {
@@ -76,8 +75,8 @@ public sealed class ProjectController(
     [HttpPost("{projectId:guid}/members/{userId:guid}")]
     public async Task<IActionResult> AddMember(Guid projectId, Guid userId)
     {
-        var project = await projectRepository.GetByIdAsync(projectId);
-        var user = await userRepository.GetByIdAsync(userId);
+        var project = await getProjectHandler.Handle(projectId);
+        var user = await getUserHandler.Handle(userId);
 
         if (project is null || user is null)
             return NotFound();
@@ -112,12 +111,12 @@ public sealed class ProjectController(
     [HttpPost("{projectId:guid}/tasks/{taskId:guid}/assignee/{userId:guid}")]
     public async Task<IActionResult> AssignTask(Guid projectId, Guid taskId, Guid userId)
     {
-        var project = await projectRepository.GetByIdAsync(projectId);
+        var project = await getProjectHandler.Handle(projectId);
 
         if (project is null)
             return NotFound();
 
-        var user = await userRepository.GetByIdAsync(userId);
+        var user = await getUserHandler.Handle(userId);
 
         if (user is null)
             return NotFound();

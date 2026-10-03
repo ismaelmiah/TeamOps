@@ -6,7 +6,6 @@ public sealed class DeleteProjectHandler(IProjectRepository repository, ICurrent
 {
     public async Task Handle(Guid projectId)
     {
-        // var project = await repository.GetByIdAsync(projectId);
         var project = await repository.GetByIdAsync(projectId, currentTenant.TenantId);
 
         if (project is null)

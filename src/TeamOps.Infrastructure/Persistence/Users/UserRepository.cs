@@ -13,9 +13,12 @@ public sealed class UserRepository(TeamOpsDbContext context) : IUserRepository
         await context.SaveChangesAsync();
     }
 
-    public async Task<User?> GetByIdAsync(Guid id)
+    public async Task<User?> GetByIdAsync(Guid id, Guid tenantId)
     {
-        return await context.Users.SingleOrDefaultAsync(x => x.Id == id);
+        return await context.Users
+            .SingleOrDefaultAsync(
+                x => x.Id == id &&
+                     x.TenantId == tenantId);
     }
 
     public async Task<IReadOnlyList<User>> GetByTenantIdAsync(Guid tenantId)

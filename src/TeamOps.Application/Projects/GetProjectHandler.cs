@@ -7,8 +7,6 @@ public sealed class GetProjectHandler(IProjectRepository repository, ICurrentTen
 {
     public async Task<Project?> Handle(Guid projectId)
     {
-        // return await repository.GetByIdAsync(projectId);
-
         return await repository.GetByIdAsync(
             projectId,
             currentTenant.TenantId);

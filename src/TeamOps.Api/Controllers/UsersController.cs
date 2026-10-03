@@ -32,9 +32,9 @@ public sealed class UsersController(
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetUsers([FromQuery] Guid tenantId)
+    public async Task<IActionResult> GetUsers()
     {
-        var users = await getUsersHandler.Handle(tenantId);
+        var users = await getUsersHandler.Handle();
 
         return Ok(users.Select(user => new
         {

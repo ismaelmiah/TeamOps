@@ -1,11 +1,14 @@
+using TeamOps.Application.Common;
+
 namespace TeamOps.Application.Projects;
 
-public sealed class CompleteProjectHandler(IProjectRepository repository)
+public sealed class CompleteProjectHandler(
+    IProjectRepository repository,
+    ICurrentTenant currentTenant)
 {
     public async Task Handle(CompleteProjectCommand command)
     {
-        var project = await repository.GetByIdAsync(
-            command.ProjectId);
+        var project = await repository.GetByIdAsync(command.ProjectId, currentTenant.TenantId);
 
         if (project is null)
             throw new KeyNotFoundException(
