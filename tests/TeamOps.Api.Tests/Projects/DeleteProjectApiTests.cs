@@ -51,8 +51,13 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Equal(project.TenantId, savedProject.TenantId);
         Assert.Equal(project.Name, savedProject.Name);
 
+        using var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/projects/{project.Id}");
 
-        var deleteResponse = await _client.DeleteAsync($"/api/projects/{project.Id}");
+        deleteRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        var deleteResponse = await _client.SendAsync(deleteRequest);
+        deleteResponse.EnsureSuccessStatusCode();
+
         Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         // verify project no longer exists in PostgreSQL
@@ -128,8 +133,14 @@ public class DeleteProjectApiTests : IClassFixture<TeamOpsApiFactory>
         Assert.Equal(HttpStatusCode.NoContent, memberResponse.StatusCode);
 
         // Act
-        var deleteProject = await _client.DeleteAsync($"/api/projects/{project.Id}");
-        Assert.Equal(HttpStatusCode.NoContent, deleteProject.StatusCode);
+        using var deleteRequest = new HttpRequestMessage(HttpMethod.Delete, $"/api/projects/{project.Id}");
+
+        deleteRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
+
+        var deleteResponse = await _client.SendAsync(deleteRequest);
+        deleteResponse.EnsureSuccessStatusCode();
+
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
 
         // Assert database state
         using var scope = _factory.Services.CreateScope();

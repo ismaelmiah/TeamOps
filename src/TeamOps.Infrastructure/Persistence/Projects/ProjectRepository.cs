@@ -38,4 +38,12 @@ public sealed class ProjectRepository(TeamOpsDbContext context) : IProjectReposi
 
         await context.SaveChangesAsync();
     }
+
+    public async Task<Project?> GetByIdAsync(Guid id, Guid tenantId)
+    {
+        return await context.Projects
+            .SingleOrDefaultAsync(
+                x => x.Id == id &&
+                     x.TenantId == tenantId);
+    }
 }

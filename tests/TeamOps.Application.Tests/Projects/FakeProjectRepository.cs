@@ -36,4 +36,12 @@ internal sealed class FakeProjectRepository : IProjectRepository
     {
         Projects.Remove(project);
     }
+
+    public async Task<Project?> GetByIdAsync(Guid id, Guid tenantId)
+{
+    return Projects
+        .FirstOrDefault(
+            x => x.Id == id &&
+                 x.TenantId == tenantId);
+}
 }

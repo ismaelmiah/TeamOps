@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace TeamOps.Api.Tests.Projects;
 
@@ -34,11 +35,16 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
 
         Assert.NotNull(createdProject);
 
-        var response = await _client.GetAsync($"/api/projects/{createdProject.Id}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/projects/{createdProject.Id}");
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        getRequest.Headers.Add("X-Test-Tenant", tenantId.ToString());
 
-        var project = await response.Content.ReadFromJsonAsync<ProjectResponse>();
+        var getResponse = await _client.SendAsync(getRequest);
+        getResponse.EnsureSuccessStatusCode();
+
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var project = await getResponse.Content.ReadFromJsonAsync<ProjectResponse>();
 
         Assert.NotNull(project);
         Assert.Equal(createdProject.Id, project.Id);
@@ -51,7 +57,11 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
     {
         var projectId = Guid.NewGuid();
 
-        var response = await _client.GetAsync($"/api/projects/{projectId}");
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/projects/{projectId}");
+
+        getRequest.Headers.Add("X-Test-Tenant", Guid.NewGuid().ToString());
+
+        var response = await _client.SendAsync(getRequest);
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -97,5 +107,39 @@ public class GetProjectApiTests : IClassFixture<TeamOpsApiFactory>
         createResponse.EnsureSuccessStatusCode();
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Get_project_from_another_tenant_returns_not_found()
+    {
+        var tenantA = Guid.NewGuid();
+        var tenantB = Guid.NewGuid();
+
+        // Create project as tenant A
+        using var createRequest = new HttpRequestMessage(HttpMethod.Post, "/api/projects");
+
+        createRequest.Headers.Add("X-Test-Tenant", tenantA.ToString());
+
+        createRequest.Content = JsonContent.Create(new
+        {
+            name = "Tenant A Project"
+        });
+
+        var createResponse = await _client.SendAsync(createRequest);
+
+        createResponse.EnsureSuccessStatusCode();
+
+        var created = await createResponse.Content.ReadFromJsonAsync<JsonElement>();
+
+        var projectId = created.GetProperty("id").GetGuid();
+
+        // Try to access it as tenant B
+        using var getRequest = new HttpRequestMessage(HttpMethod.Get, $"/api/projects/{projectId}");
+
+        getRequest.Headers.Add("X-Test-Tenant", tenantB.ToString());
+
+        var getResponse = await _client.SendAsync(getRequest);
+
+        Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
     }
 }
